@@ -430,23 +430,26 @@ const server = http
     console.log(`  账号数据 ：${ACCOUNTS_FILE}`);
     console.log(`  会话数据 ：${SESSIONS_FILE}`);
     console.log("  按 Ctrl+C 停止");
-
-    if (process.env.XIAOYANGTK_NO_OPEN !== "1") {
-      try {
-        const child = spawn("cmd", ["/c", "start", "", `http://127.0.0.1:${PORT}/admin.html`], {
-          detached: true,
-          stdio: "ignore",
-          windowsHide: true
-        });
-        child.unref();
-      } catch (e) { /* 打不开浏览器不影响服务 */ }
-    }
+    openBrowser();
   });
+
+function openBrowser() {
+  if (process.env.XIAOYANGTK_NO_OPEN === "1") return;
+  try {
+    const child = spawn("cmd", ["/c", "start", "", `http://127.0.0.1:${PORT}/admin.html`], {
+      detached: true,
+      stdio: "ignore",
+      windowsHide: true
+    });
+    child.unref();
+  } catch (e) { /* 打不开浏览器不影响服务 */ }
+}
 
 server.on("error", (err) => {
   if (err && err.code === "EADDRINUSE") {
     console.log(`端口 ${PORT} 已被占用，服务可能已在运行。`);
-    console.log(`直接打开：http://127.0.0.1:${PORT}/admin.html`);
+    console.log(`正在打开：http://127.0.0.1:${PORT}/admin.html`);
+    openBrowser();
     process.exit(0);
   }
   console.error("启动失败：", err);
