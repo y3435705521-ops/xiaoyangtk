@@ -16,6 +16,9 @@
     sort: $("[data-sort]"),
     resultText: $("[data-result-text]"),
     empty: $("[data-empty]"),
+    catalogEmpty: $("[data-catalog-empty]"),
+    catTitle: $("[data-cat-title]"),
+    catCount: $("[data-cat-count]"),
     reset: $("[data-reset-filter]"),
     cartDrawer: $("[data-cart-drawer]"),
     cartList: $("[data-cart-list]"),
@@ -53,7 +56,7 @@
     lastOrder: null
   };
 
-  const CAT_MARK = { gpt: "G", claude: "C", grok: "X" };
+  const CAT_MARK = { all: "全", gpt: "G", claude: "C", grok: "X" };
   const STOCK_CLASS = { high: "", mid: "is-mid", low: "is-low", out: "is-out" };
 
   function esc(value) {
@@ -141,12 +144,21 @@
     els.tabs.innerHTML = SHOP.categories.map((category) => `
       <button
         type="button"
-        class="tab${state.category === category.id ? " is-active" : ""}"
+        class="cat-item${state.category === category.id ? " is-active" : ""}"
         role="tab"
         aria-selected="${state.category === category.id}"
         data-cat="${category.id}"
-      >${esc(category.name)}<sup>${counts[category.id] || 0}</sup></button>
+      >
+        <span class="cat-icon cat-icon-${esc(category.id)}">${esc(CAT_MARK[category.id] || "A")}</span>
+        <span class="cat-name">${esc(category.name)}</span>
+        <span class="cat-count">${counts[category.id] || 0}</span>
+      </button>
     `).join("");
+
+    const current = SHOP.categories.find((category) => category.id === state.category);
+    if (els.catTitle) {
+      els.catTitle.textContent = state.category === "all" ? "全部商品" : (current ? current.name : "全部商品");
+    }
   }
 
   function filteredProducts() {
@@ -178,42 +190,34 @@
     return items;
   }
 
-  function productCard(product) {
-    const index = SHOP.products.findIndex((item) => item.id === product.id) + 1;
+  function productRow(product) {
     const range = priceRange(product);
     const hasRange = product.skus.length > 1 || range.min !== range.max;
     const tag = product.tags[0] || "官方渠道";
     const stockClass = STOCK_CLASS[product.stock.level] || "";
+    const stockText = product.stock.level === "out" ? "已售罄" : product.stock.text;
 
     return `
-      <article class="product-card" data-cat="${product.cat}" data-product-id="${product.id}">
-        <a class="product-hit" href="#product-${product.id}" data-open-product="${product.id}" aria-label="查看 ${esc(product.name)} 详情"></a>
-        <div class="product-media">
-          <span class="media-mark">${esc(product.mark || CAT_MARK[product.cat] || "L")}</span>
-          <div class="media-top">
-            <span class="media-no">NO. ${String(index).padStart(2, "0")}</span>
-            <span class="stock-chip ${stockClass}">${esc(product.stock.text)}</span>
+      <article class="crow" data-cat="${product.cat}" data-product-id="${product.id}">
+        <div class="crow-main">
+          <span class="crow-thumb">
+            <img src="${esc(product.cover)}" alt="${esc(product.brand)} 标志" loading="lazy">
+          </span>
+          <div class="crow-info">
+            <a class="crow-name" href="#product-${product.id}" data-open-product="${product.id}">${esc(product.name)}</a>
+            <div class="crow-tags">
+              <span class="tag tag-gold">${esc(tag)}</span>
+              <span class="tag tag-green">自动发货</span>
+            </div>
           </div>
-          <div class="logo-tile"><img src="${product.cover}" alt="${esc(product.brand)} 标志" loading="lazy"></div>
-          <span class="media-tag">${esc(product.brand)} / ${esc(product.brandSub)}</span>
         </div>
-        <div class="product-body">
-          <div class="card-brandline">
-            <span>${esc(product.brand)} · 订阅直充</span>
-            <span>已售 ${soldText(product.sold)}</span>
-          </div>
-          <h3>${esc(product.name)}</h3>
-          <p class="product-sub">${esc(product.sub)}</p>
-          <div class="card-tags">
-            <span>${esc(tag)}</span>
-            <span>自动发货</span>
-          </div>
-          <div class="card-price-row">
-            <span class="price"><i>¥</i>${money(range.min)}${hasRange ? "<small>起</small>" : ""}</span>
-            <button type="button" class="quick-add" data-quick-add="${product.id}" aria-label="将 ${esc(product.name)} 加入购物袋">
-              <svg class="icon"><use href="#i-plus"/></svg>
-            </button>
-          </div>
+        <div class="crow-price"><i>¥</i>${money(range.min)}${hasRange ? "<small>起</small>" : ""}</div>
+        <div class="crow-stock ${stockClass}">${esc(stockText)}</div>
+        <div class="crow-act">
+          <button type="button" class="buy-btn" data-quick-add="${product.id}" aria-label="购买 ${esc(product.name)}">
+            <svg class="icon"><use href="#i-bag"/></svg>
+            <span>购买</span>
+          </button>
         </div>
       </article>
     `;
@@ -221,9 +225,13 @@
 
   function renderProducts() {
     const items = filteredProducts();
-    els.grid.innerHTML = items.map(productCard).join("");
-    els.empty.hidden = items.length > 0;
+    const catalogEmpty = SHOP.products.length === 0;
+
+    els.grid.innerHTML = items.map(productRow).join("");
     els.grid.hidden = items.length === 0;
+    els.empty.hidden = items.length > 0 || catalogEmpty;
+    if (els.catalogEmpty) els.catalogEmpty.hidden = !catalogEmpty;
+    if (els.catCount) els.catCount.textContent = `${items.length} 款`;
 
     if (state.search.trim()) {
       els.resultText.textContent = `找到 ${items.length} 款 · 关键词「${state.search.trim()}」`;
@@ -667,10 +675,21 @@
     els.search.focus();
   });
 
-  els.sort.addEventListener("change", () => {
-    state.sort = els.sort.value;
-    renderProducts();
-  });
+  if (els.sort) {
+    els.sort.addEventListener("change", () => {
+      state.sort = els.sort.value;
+      renderProducts();
+    });
+  }
+
+  const searchGo = $("[data-search-go]");
+  if (searchGo) {
+    searchGo.addEventListener("click", () => {
+      state.search = els.search.value;
+      els.searchClear.hidden = !state.search;
+      renderProducts();
+    });
+  }
 
   els.reset.addEventListener("click", () => {
     state.category = "all";
@@ -678,7 +697,7 @@
     state.sort = "featured";
     els.search.value = "";
     els.searchClear.hidden = true;
-    els.sort.value = "featured";
+    if (els.sort) els.sort.value = "featured";
     renderTabs();
     renderProducts();
     updateNavState();

@@ -181,51 +181,68 @@
       </div>
     </section>
 
-    <section class="catalog" id="catalog">
-      <div class="shell">
-        <div class="section-head">
-          <div>
-            <p class="eyebrow"><span class="dot"></span>SHOP / 01</p>
-            <h2>在售好物</h2>
+    <section class="shop" id="catalog">
+      <div class="shell shop-grid">
+        <aside class="panel cat-panel">
+          <p class="panel-kicker">CATEGORIES</p>
+          <h2 class="panel-title">商品分类</h2>
+          <div class="cat-list" role="tablist" aria-label="商品分类" data-tabs></div>
+          <div class="cat-note">
+            <span class="cat-note-dot"></span>
+            <span>客服在线 10:00 – 24:00 · QQ 3435705521</span>
           </div>
-          <p class="section-side">按需挑选，价格与库存实时整理。<br>标注「可预订」的商品补货后按付款顺序发货。</p>
-        </div>
+        </aside>
 
-        <div class="catalog-toolbar">
-          <div class="tabs" role="tablist" aria-label="商品分类" data-tabs></div>
-          <div class="toolbar-right">
-            <label class="search-field">
-              <svg class="icon"><use href="#i-search"/></svg>
-              <input type="search" placeholder="搜索 GPT、Claude、Grok…" aria-label="搜索商品" data-search>
-              <button type="button" class="search-clear" aria-label="清空搜索" data-search-clear hidden>
-                <svg class="icon"><use href="#i-close"/></svg>
+        <div class="panel catalog-panel">
+          <div class="catalog-head">
+            <div class="catalog-title-wrap">
+              <p class="panel-kicker">CATALOG</p>
+              <h2 class="panel-title">
+                <span data-cat-title>全部商品</span>
+                <span class="catalog-count" data-cat-count>0 款</span>
+              </h2>
+            </div>
+
+            <div class="catalog-searchbar">
+              <label class="cat-search">
+                <svg class="icon"><use href="#i-search"/></svg>
+                <input type="search" placeholder="搜索商品关键词" aria-label="搜索商品" data-search>
+                <button type="button" class="search-clear" aria-label="清空搜索" data-search-clear hidden>
+                  <svg class="icon"><use href="#i-close"/></svg>
+                </button>
+              </label>
+              <button type="button" class="btn-search" data-search-go>
+                <svg class="icon"><use href="#i-search"/></svg>
+                <span>搜索</span>
               </button>
-            </label>
-            <label class="sort-field">
-              <span>排序</span>
-              <select data-sort aria-label="商品排序">
-                <option value="featured">推荐</option>
-                <option value="price-asc">价格从低到高</option>
-                <option value="price-desc">价格从高到低</option>
-                <option value="sales">销量优先</option>
-              </select>
-              <svg class="icon"><use href="#i-chevron"/></svg>
-            </label>
+            </div>
           </div>
-        </div>
 
-        <div class="catalog-meta">
-          <p data-result-text>共 13 款商品</p>
-          <p class="meta-tip">更新于 2026.10.20 · 人民币</p>
-        </div>
+          <div class="catalog-table">
+            <div class="table-head" aria-hidden="true">
+              <span>商品</span>
+              <span>价格</span>
+              <span>库存</span>
+              <span></span>
+            </div>
+            <div class="table-body" data-product-grid></div>
 
-        <div class="product-grid" data-product-grid></div>
+            <div class="table-empty" data-catalog-empty>
+              <p class="table-empty-title">商品筹备中</p>
+              <p class="table-empty-sub">档位与价格整理完成后会在这里上架，可以先加客服 QQ 咨询。</p>
+            </div>
+          </div>
 
-        <div class="empty-state" data-empty hidden>
-          <p class="empty-mark">?</p>
-          <h3>没有找到对应商品</h3>
-          <p>换个关键词，或看看全部分类。</p>
-          <button type="button" class="btn btn-ghost" data-reset-filter>重置筛选</button>
+          <div class="empty-state" data-empty hidden>
+            <h3>没有找到对应商品</h3>
+            <p>换个关键词，或看看其他分类。</p>
+            <button type="button" class="btn btn-ghost" data-reset-filter>重置筛选</button>
+          </div>
+
+          <p class="catalog-foot">
+            <span data-result-text>共 0 款商品</span>
+            <span>更新于 2026.10.20 · 人民币</span>
+          </p>
         </div>
       </div>
     </section>
@@ -370,6 +387,11 @@
       <p>© 2026 小杨TK · 仅面向海外用户与留学生</p>
     </div>
   </footer>
+
+  <a class="help-dock" href="https://wpa.qq.com/msgrd?v=3&amp;uin=3435705521&amp;site=qq&amp;menu=yes" target="_blank" rel="noopener">
+    <svg class="icon"><use href="#i-chat"/></svg>
+    <span>在线客服</span>
+  </a>
 
   <div class="scrim" data-scrim hidden></div>
 
