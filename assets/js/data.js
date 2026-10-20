@@ -54,34 +54,6 @@ window.SHOP = {
       "highlights": [],
       "notes": [],
       "cover": ""
-    },
-    {
-      "id": "584817",
-      "cat": "gpt",
-      "brand": "",
-      "brandSub": "",
-      "mark": "",
-      "name": "上架测试",
-      "sub": "临时验证商品",
-      "price": 99,
-      "stock": {
-        "level": "high",
-        "text": "库存充足"
-      },
-      "sold": 0,
-      "featured": 2,
-      "tags": [],
-      "skuLabel": "商品规格",
-      "skus": [
-        {
-          "name": "标准",
-          "price": 99,
-          "hint": ""
-        }
-      ],
-      "highlights": [],
-      "notes": [],
-      "cover": ""
     }
   ]
 };
