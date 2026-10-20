@@ -18,6 +18,7 @@
     role: $("[data-profile-role]"),
     perm: $("[data-profile-perm]"),
     adminLink: $("[data-goto-admin]"),
+    hint: $("[data-acc-hint]"),
     time: $("[data-profile-time]")
   };
 
@@ -55,8 +56,8 @@
     return date.toLocaleString("zh-CN", { hour12: false });
   }
 
-  function render() {
-    const session = Auth.session();
+  async function render() {
+    const session = await Auth.session();
     if (session) {
       els.guest.hidden = true;
       els.profile.hidden = false;
@@ -66,11 +67,9 @@
       els.perm.textContent = session.role === "admin"
         ? "全站管理"
         : "浏览商品 / 下单购买";
-      if (els.adminLink) els.adminLink.hidden = !Auth.isOwner(session);
+      if (els.adminLink) els.adminLink.hidden = !(await Auth.isOwner(session));
 
-      const users = Auth.list();
-      const me = users.find((user) => user.id === session.uid);
-      els.time.textContent = me ? formatTime(me.createdAt) : "—";
+      els.time.textContent = formatTime(session.createdAt);
       return;
     }
 
@@ -100,15 +99,15 @@
     els.submit.textContent = mode === "login" ? "登录中…" : "注册中…";
 
     // 让浏览器先把按钮状态画出来，再做派生计算
-    window.setTimeout(() => {
+    window.setTimeout(async () => {
       try {
         if (mode === "login") {
-          Auth.login(username, password, els.remember.checked);
+          await Auth.login(username, password, els.remember.checked);
         } else {
-          Auth.register({ username, password, nickname });
+          await Auth.register({ username, password, nickname });
         }
         els.form.reset();
-        render();
+        await render();
       } catch (err) {
         fail(err.message || "操作失败");
       } finally {
@@ -128,12 +127,19 @@
 
   els.form.addEventListener("submit", submit);
 
-  els.logout.addEventListener("click", () => {
-    Auth.logout();
+  els.logout.addEventListener("click", async () => {
+    await Auth.logout();
     setMode("login");
-    render();
+    await render();
   });
 
   setMode("login");
   render();
+
+  (async () => {
+    const info = await Auth.info();
+    if (els.hint && info && info.accountsFile) {
+      els.hint.textContent = `账号数据保存在本机文件：${info.accountsFile}`;
+    }
+  })();
 })();

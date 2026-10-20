@@ -216,20 +216,120 @@
       username: user.username,
       nickname: user.nickname || user.username,
       role: user.role,
+      createdAt: user.createdAt,
       exp: Date.now() + ttl
     };
     writeSession(session);
     return session;
   }
 
+  /* --- 本地账号服务（文件存储） ------------------------------------------ */
+
+  const REMOTE_TOKEN_KEY = "xiaoyang_remote_token_v1";
+  const REMOTE_SESSION_KEY = "xiaoyang_remote_session_v1";
+  let modePromise = null;
+  let healthInfo = null;
+
+  function detectMode() {
+    if (!modePromise) {
+      modePromise = (async () => {
+        try {
+          const res = await fetch("/api/health", {
+            cache: "no-store",
+            headers: { accept: "application/json" }
+          });
+          if (!res.ok) return "local";
+          const data = await res.json();
+          healthInfo = data;
+          return data && data.service === "xiaoyangtk-accounts" ? "remote" : "local";
+        } catch (e) {
+          return "local";
+        }
+      })();
+    }
+    return modePromise;
+  }
+
+  function readRemoteToken() {
+    try {
+      return localStorage.getItem(REMOTE_TOKEN_KEY) || "";
+    } catch (e) {
+      return "";
+    }
+  }
+
+  function writeRemoteToken(token) {
+    try {
+      if (token) localStorage.setItem(REMOTE_TOKEN_KEY, token);
+      else localStorage.removeItem(REMOTE_TOKEN_KEY);
+    } catch (e) { /* ignore */ }
+  }
+
+  function readRemoteSession() {
+    try {
+      const raw = localStorage.getItem(REMOTE_SESSION_KEY);
+      return raw ? JSON.parse(raw) : null;
+    } catch (e) {
+      return null;
+    }
+  }
+
+  function writeRemoteSession(session) {
+    try {
+      if (session) localStorage.setItem(REMOTE_SESSION_KEY, JSON.stringify(session));
+      else localStorage.removeItem(REMOTE_SESSION_KEY);
+    } catch (e) { /* ignore */ }
+  }
+
+  async function api(path, options) {
+    const opts = options || {};
+    const headers = { accept: "application/json" };
+    const token = readRemoteToken();
+    if (token) headers.authorization = `Bearer ${token}`;
+    if (opts.body) headers["content-type"] = "application/json";
+
+    const res = await fetch(path, {
+      method: opts.method || "GET",
+      headers,
+      body: opts.body ? JSON.stringify(opts.body) : undefined,
+      cache: "no-store"
+    });
+
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok) throw new Error(data.error || `请求失败（${res.status}）`);
+    return data;
+  }
+
   /* --- 对外 API ---------------------------------------------------------- */
 
   const Auth = {
+    /** "remote" = 数据在电脑上的文件；"local" = 浏览器存储 */
+    mode() {
+      return detectMode();
+    },
+
+    /** 存储位置信息（仅本地服务模式有值） */
+    async info() {
+      await detectMode();
+      return healthInfo;
+    },
+
     /* 注册只能产生普通会员，管理员账号固定为内置店主账号，无法通过这里创建 */
-    register({ username, password, nickname }) {
+    async register({ username, password, nickname }) {
       const name = String(username || "").trim();
       checkUsername(name);
       checkPassword(password);
+
+      if ((await detectMode()) === "remote") {
+        const data = await api("/api/register", {
+          method: "POST",
+          body: { username: name, password, nickname }
+        });
+        writeRemoteToken(data.token);
+        writeRemoteSession(data.session);
+        return data.session;
+      }
+
       const users = readUsers();
       if (users.some((user) => normalize(user.username) === normalize(name))) {
         throw new Error("该账号已被注册");
@@ -250,7 +350,17 @@
       return makeSession(user, SESSION_TTL);
     },
 
-    login(username, password, remember) {
+    async login(username, password, remember) {
+      if ((await detectMode()) === "remote") {
+        const data = await api("/api/login", {
+          method: "POST",
+          body: { username, password, remember: !!remember }
+        });
+        writeRemoteToken(data.token);
+        writeRemoteSession(data.session);
+        return data.session;
+      }
+
       const users = readUsers();
       const user = users.find((item) => normalize(item.username) === normalize(username));
       if (!user) throw new Error("账号或密码不正确");
@@ -261,12 +371,30 @@
       return makeSession(user, ttl);
     },
 
-    logout() {
+    async logout() {
+      if ((await detectMode()) === "remote") {
+        try {
+          await api("/api/logout", { method: "POST" });
+        } catch (e) { /* 网络异常也清掉本地会话 */ }
+        writeRemoteToken("");
+        writeRemoteSession(null);
+        return;
+      }
       writeSession(null);
     },
 
     /** 当前会话（自动处理过期） */
-    session() {
+    async session() {
+      if ((await detectMode()) === "remote") {
+        const cached = readRemoteSession();
+        if (!cached || !cached.exp || cached.exp < Date.now()) {
+          writeRemoteToken("");
+          writeRemoteSession(null);
+          return null;
+        }
+        return cached;
+      }
+
       const session = readSession();
       if (!session) return null;
       if (!session.exp || session.exp < Date.now()) {
@@ -282,18 +410,34 @@
     },
 
     /** 管理员专用：所有账号（不含密码材料） */
-    list() {
+    async list() {
+      if ((await detectMode()) === "remote") {
+        const data = await api("/api/users");
+        return data.users || [];
+      }
       return readUsers().map(publicUser);
     },
 
     /** 是否内置店主管理员（唯一允许进入后台的账号） */
-    isOwner(session) {
+    async isOwner(session) {
+      if (!session) return false;
+      if ((await detectMode()) === "remote") {
+        return session.owner === true;
+      }
       if (!session || session.uid !== BUILTIN_ADMIN.id) return false;
       const user = readUsers().find((item) => item.id === BUILTIN_ADMIN.id);
       return !!user && user.role === "admin" && user.hash === BUILTIN_ADMIN.hash;
     },
 
-    setStatus(id, status) {
+    async setStatus(id, status) {
+      if ((await detectMode()) === "remote") {
+        await api(`/api/users/${encodeURIComponent(id)}`, {
+          method: "PATCH",
+          body: { status }
+        });
+        return;
+      }
+
       const users = readUsers();
       const user = users.find((item) => item.id === id);
       if (!user) throw new Error("账号不存在");
@@ -302,7 +446,12 @@
       writeUsers(users);
     },
 
-    remove(id) {
+    async remove(id) {
+      if ((await detectMode()) === "remote") {
+        await api(`/api/users/${encodeURIComponent(id)}`, { method: "DELETE" });
+        return;
+      }
+
       const users = readUsers();
       const user = users.find((item) => item.id === id);
       if (!user) throw new Error("账号不存在");

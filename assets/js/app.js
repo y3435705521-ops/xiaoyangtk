@@ -876,10 +876,10 @@
     });
   }
 
-  function renderAdminEntry() {
+  async function renderAdminEntry() {
     if (!window.Auth) return;
-    const session = Auth.session();
-    const isOwner = session ? Auth.isOwner(session) : false;
+    const session = await Auth.session();
+    const isOwner = session ? await Auth.isOwner(session) : false;
 
     $$("[data-admin-jump]").forEach((el) => {
       el.hidden = !isOwner;

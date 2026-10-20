@@ -323,9 +323,18 @@
     renderUsers();
   }
 
-  function renderUsers() {
-    const users = Auth.list();
-    const me = Auth.session();
+  async function renderUsers() {
+    let users = [];
+    let me = null;
+    try {
+      users = await Auth.list();
+      me = await Auth.session();
+    } catch (err) {
+      els.userTotal.textContent = "—";
+      els.usersEmpty.hidden = false;
+      toast(err.message || "读取账号失败", true);
+      return;
+    }
 
     els.userRows.innerHTML = users.map((user) => {
       const isAdmin = user.role === "admin";
@@ -789,17 +798,17 @@
 
     els.gateForm.addEventListener("submit", submitGate);
 
-    $("[data-logout]").addEventListener("click", () => {
-      Auth.logout();
+    $("[data-logout]").addEventListener("click", async () => {
+      await Auth.logout();
       window.location.reload();
     });
 
-    $("[data-refresh-users]").addEventListener("click", () => {
-      renderUsers();
+    $("[data-refresh-users]").addEventListener("click", async () => {
+      await renderUsers();
       toast("会员列表已刷新");
     });
 
-    els.userRows.addEventListener("click", (event) => {
+    els.userRows.addEventListener("click", async (event) => {
       const disable = event.target.closest("[data-user-disable]");
       const enable = event.target.closest("[data-user-enable]");
       const remove = event.target.closest("[data-user-del]");
@@ -807,14 +816,14 @@
 
       try {
         if (disable) {
-          Auth.setStatus(disable.dataset.userDisable, "disabled");
-          renderUsers();
+          await Auth.setStatus(disable.dataset.userDisable, "disabled");
+          await renderUsers();
           toast("账号已停用");
           return;
         }
         if (enable) {
-          Auth.setStatus(enable.dataset.userEnable, "active");
-          renderUsers();
+          await Auth.setStatus(enable.dataset.userEnable, "active");
+          await renderUsers();
           toast("账号已启用");
           return;
         }
@@ -824,9 +833,9 @@
           return;
         }
         if (confirmRemove) {
-          Auth.remove(confirmRemove.dataset.userDelConfirm);
+          await Auth.remove(confirmRemove.dataset.userDelConfirm);
           state.pendingUserDelete = null;
-          renderUsers();
+          await renderUsers();
           toast("账号已删除");
           return;
         }
@@ -900,7 +909,7 @@
     els.gateErr.hidden = false;
   }
 
-  function submitGate(event) {
+  async function submitGate(event) {
     event.preventDefault();
     els.gateErr.hidden = true;
 
@@ -915,10 +924,10 @@
 
     els.gateSubmit.disabled = true;
     try {
-      const session = Auth.login(username, password, true);
+      const session = await Auth.login(username, password, true);
 
-      if (!Auth.isOwner(session)) {
-        Auth.logout();
+      if (!(await Auth.isOwner(session))) {
+        await Auth.logout();
         throw new Error("该账号没有后台权限");
       }
       startConsole(session);
@@ -932,6 +941,12 @@
   async function startConsole(session) {
     els.gate.hidden = true;
     els.app.hidden = false;
+
+    const info = await Auth.info();
+    const source = $("[data-users-source]");
+    if (source && info && info.accountsFile) {
+      source.textContent = `账号数据：${info.accountsFile}`;
+    }
 
     if (els.adminName) {
       els.adminName.textContent = session.nickname || session.username;
@@ -970,8 +985,8 @@
 
   async function boot() {
     bind();
-    const session = Auth.session();
-    if (!session || !Auth.isOwner(session)) {
+    const session = await Auth.session();
+    if (!session || !(await Auth.isOwner(session))) {
       showGate();
       return;
     }
