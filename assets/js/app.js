@@ -144,23 +144,29 @@
   }
 
   function cartCount() {
-    return state.cart.reduce((total, line) => total + line.qty, 0);
+    return cartLines().reduce((total, line) => total + line.qty, 0);
   }
 
   function cartTotal() {
-    return state.cart.reduce((total, line) => {
-      const product = productById(line.id);
-      const sku = product.skus.find((item) => item.name === line.sku) || product.skus[0];
-      return total + sku.price * line.qty;
-    }, 0);
+    return cartLines().reduce((total, line) => total + line.lineTotal, 0);
   }
 
   function cartLines() {
-    return state.cart.map((line) => {
-      const product = productById(line.id);
-      const sku = product.skus.find((item) => item.name === line.sku) || product.skus[0];
-      return { ...line, product, sku, lineTotal: sku.price * line.qty };
-    });
+    return state.cart
+      .map((line) => {
+        const product = productById(line.id);
+        if (!product) return null;
+        const skus = Array.isArray(product.skus) ? product.skus : [];
+        const sku = skus.find((item) => item.name === line.sku) || skus[0];
+        if (!sku) return null;
+        return {
+          ...line,
+          product,
+          sku,
+          lineTotal: (Number(sku.price) || 0) * line.qty
+        };
+      })
+      .filter(Boolean);
   }
 
   function renderTabs() {
@@ -297,6 +303,39 @@
     `).join("");
 
     if (note) note.textContent = `更新于 ${SHOP.updated || "—"} · 明码标价`;
+  }
+
+  /** 客服 QQ、在线时间、更新日期都跟随后台设置 */
+  function renderShopInfo() {
+    const contact = SHOP.contact || {};
+    const qq = contact.qq || "3435705521";
+    const hours = contact.hours || "10:00 – 24:00";
+    const updated = SHOP.updated || "—";
+
+    $$("[data-shop-ticker]").forEach((el) => {
+      el.textContent = `在线客服 ${hours} · QQ ${qq}`;
+    });
+    $$("[data-shop-contact]").forEach((el) => {
+      el.textContent = `客服 QQ ${qq} · ${hours}`;
+    });
+    $$("[data-shop-side]").forEach((el) => {
+      el.textContent = `客服在线 ${hours} · QQ ${qq}`;
+    });
+    $$("[data-shop-qq]").forEach((el) => {
+      el.textContent = `QQ ${qq}`;
+    });
+    $$("[data-shop-hours]").forEach((el) => {
+      el.textContent = `每日 ${hours}`;
+    });
+    $$("[data-shop-updated]").forEach((el) => {
+      el.textContent = `更新于 ${updated} · 人民币`;
+    });
+    $$("[data-shop-hours-only]").forEach((el) => {
+      el.textContent = hours.replace(/\s*[–—-]\s*/, " — ");
+    });
+    $$("[data-shop-hours-sentence]").forEach((el) => {
+      el.textContent = `每天 ${hours} 在线，充值前拿不准的账号条件可以先问。`;
+    });
   }
 
   function setCategory(categoryId, scroll = false) {
@@ -465,11 +504,17 @@
 
   function renderCart() {
     const lines = cartLines();
+    if (lines.length !== state.cart.length) {
+      state.cart = lines.map((line) => ({ id: line.id, sku: line.sku, qty: line.qty }));
+      saveCart();
+    }
     updateCartBadge();
     els.cartList.innerHTML = lines.map((line, index) => `
       <article class="cart-item">
         <div class="cart-thumb" data-cat="${line.product.cat}">
-          <img src="${line.product.cover}" alt="">
+          ${line.product.cover
+            ? `<img src="${esc(line.product.cover)}" alt="">`
+            : `<span class="thumb-mark">${esc(String(line.product.mark || line.product.brand || line.product.name || "?").slice(0, 3))}</span>`}
         </div>
         <div class="cart-info">
           <strong>${esc(line.product.name)}</strong>
@@ -536,10 +581,13 @@
     els.cartDrawer.inert = false;
     els.scrim.hidden = false;
     els.cartDrawer.setAttribute("aria-hidden", "false");
-    requestAnimationFrame(() => {
+    const reveal = () => {
       els.scrim.classList.add("is-open");
       els.cartDrawer.classList.add("is-open");
-    });
+    };
+    // 标签页在后台时 requestAnimationFrame 可能不执行，加一个定时兜底
+    requestAnimationFrame(reveal);
+    window.setTimeout(reveal, 60);
     document.body.classList.add("no-scroll");
     setTimeout(() => els.cartDrawer.focus({ preventScroll: true }), 80);
   }
@@ -941,6 +989,7 @@
   renderTabs();
   renderProducts();
   renderOverview();
+  renderShopInfo();
   renderAdminEntry();
   renderCart();
   updateNavState();

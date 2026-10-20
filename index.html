@@ -14,7 +14,7 @@
   <meta property="og:image" content="https://www.xiaoyangtk.xin/assets/img/og-cover.png">
   <meta name="twitter:card" content="summary_large_image">
   <link rel="icon" href="assets/img/favicon.svg" type="image/svg+xml">
-  <link rel="stylesheet" href="assets/css/style.css?v=20261020n">
+  <link rel="stylesheet" href="assets/css/style.css?v=20261020o">
 </head>
 <body>
   <svg class="svg-sprite" aria-hidden="true">
@@ -80,11 +80,11 @@
       <span>仅面向海外用户与留学生 · 境外学习 / 工作场景</span><i>◆</i>
       <span>全部商品卡密自动发货，24 小时秒发</span><i>◆</i>
       <span>未使用卡密 24 小时内可申请退款</span><i>◆</i>
-      <span>在线客服 10:00 – 24:00 · QQ 3435705521</span><i>◆</i>
+      <span data-shop-ticker>在线客服 10:00 – 24:00 · QQ 3435705521</span><i>◆</i>
       <span aria-hidden="true">仅面向海外用户与留学生 · 境外学习 / 工作场景</span><i aria-hidden="true">◆</i>
       <span aria-hidden="true">全部商品卡密自动发货，24 小时秒发</span><i aria-hidden="true">◆</i>
       <span aria-hidden="true">未使用卡密 24 小时内可申请退款</span><i aria-hidden="true">◆</i>
-      <span aria-hidden="true">在线客服 10:00 – 24:00 · QQ 3435705521</span><i aria-hidden="true">◆</i>
+      <span aria-hidden="true" data-shop-ticker>在线客服 10:00 – 24:00 · QQ 3435705521</span><i aria-hidden="true">◆</i>
     </div>
   </div>
 
@@ -140,7 +140,7 @@
       <a href="#faq">买前必读 <span>FAQ</span></a>
       <a href="account.html">登录 / 注册 <span>ACCOUNT</span></a>
       <a href="admin.html" data-admin-jump hidden>管理后台 <span>ADMIN</span></a>
-      <p>客服 QQ 3435705521 · 10:00–24:00</p>
+      <p data-shop-contact>客服 QQ 3435705521 · 10:00–24:00</p>
     </div>
   </header>
 
@@ -203,7 +203,7 @@
           <div class="cat-list" role="tablist" aria-label="商品分类" data-tabs></div>
           <div class="cat-note">
             <span class="cat-note-dot"></span>
-            <span>客服在线 10:00 – 24:00 · QQ 3435705521</span>
+          <span data-shop-side>客服在线 10:00 – 24:00 · QQ 3435705521</span>
           </div>
         </aside>
 
@@ -255,7 +255,7 @@
 
           <p class="catalog-foot">
             <span data-result-text>共 0 款商品</span>
-            <span>更新于 2026.10.20 · 人民币</span>
+          <span data-shop-updated>更新于 2026.10.20 · 人民币</span>
           </p>
         </div>
       </div>
@@ -292,7 +292,7 @@
             <span class="assurance-no">04</span>
             <svg class="icon"><use href="#i-chat"/></svg>
             <h3>真人客服</h3>
-            <p>每天 10:00 – 24:00 在线，充值前拿不准的账号条件可以先问。</p>
+<p data-shop-hours-sentence>每天 10:00 – 24:00 在线，充值前拿不准的账号条件可以先问。</p>
           </article>
         </div>
       </div>
@@ -337,8 +337,8 @@
             <span class="contact-avatar">杨</span>
             <div>
               <strong>在线客服</strong>
-              <p>QQ 3435705521</p>
-              <small>每日 10:00 – 24:00</small>
+          <p data-shop-qq>QQ 3435705521</p>
+          <small data-shop-hours>每日 10:00 – 24:00</small>
             </div>
         <a class="icon-link" href="https://qm.qq.com/q/XFeh6tkC0U" target="_blank" rel="noopener" aria-label="联系 QQ 客服">
               <svg class="icon"><use href="#i-arrow-up"/></svg>
@@ -392,7 +392,7 @@
         <a href="account.html">登录 / 注册</a>
         <a href="https://qm.qq.com/q/XFeh6tkC0U" target="_blank" rel="noopener">联系客服</a>
       </nav>
-      <p class="footer-time">客服在线<br><span>10:00 — 24:00</span></p>
+      <p class="footer-time">客服在线<br><span data-shop-hours-only>10:00 — 24:00</span></p>
     </div>
     <div class="shell footer-bottom">
       <div class="footer-notes">
@@ -498,7 +498,7 @@
 
   <div class="toast" role="status" aria-live="polite" data-toast></div>
 
-  <script src="assets/js/auth.js?v=20261020n"></script>
+  <script src="assets/js/auth.js?v=20261020o"></script>
   <script>
     // data.js 带时间戳加载，避免浏览器缓存导致"后台已发布、前台看不到"
     (function () {
@@ -506,12 +506,12 @@
       data.src = "assets/js/data.js?t=" + Date.now();
       data.onload = function () {
         var app = document.createElement("script");
-        app.src = "assets/js/app.js?v=20261020n";
+        app.src = "assets/js/app.js?v=20261020o";
         document.body.appendChild(app);
       };
       data.onerror = function () {
         var app = document.createElement("script");
-        app.src = "assets/js/app.js?v=20261020n";
+        app.src = "assets/js/app.js?v=20261020o";
         document.body.appendChild(app);
       };
       document.head.appendChild(data);

@@ -90,6 +90,25 @@ if (!db.users.some((user) => user.id === OWNER_ID)) {
 let sessions = readJson(SESSIONS_FILE, {});
 if (!sessions || typeof sessions !== "object") sessions = {};
 
+/* 启动时清掉过期会话，避免 sessions.json 无限增长 */
+function pruneSessions() {
+  const now = Date.now();
+  let changed = false;
+  for (const [token, entry] of Object.entries(sessions)) {
+    if (!entry || !entry.exp || entry.exp < now) {
+      delete sessions[token];
+      changed = true;
+    }
+  }
+  if (changed) {
+    try {
+      fs.writeFileSync(SESSIONS_FILE, JSON.stringify(sessions, null, 2), "utf8");
+    } catch (e) { /* ignore */ }
+  }
+}
+
+pruneSessions();
+
 function saveUsers() {
   writeJson(ACCOUNTS_FILE, db);
 }
@@ -188,16 +207,20 @@ function sendJson(res, status, payload) {
 
 function readBody(req) {
   return new Promise((resolve, reject) => {
-    let raw = "";
+    const chunks = [];
+    let size = 0;
     req.on("data", (chunk) => {
-      raw += chunk;
-      if (raw.length > 1e6) {
+      size += chunk.length;
+      if (size > 1e6) {
         reject(new Error("请求体过大"));
         req.destroy();
+        return;
       }
+      chunks.push(chunk);
     });
     req.on("end", () => {
       try {
+        const raw = Buffer.concat(chunks).toString("utf8");
         resolve(raw ? JSON.parse(raw) : {});
       } catch (err) {
         reject(new Error("请求格式错误"));

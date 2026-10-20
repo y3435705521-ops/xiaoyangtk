@@ -63,6 +63,7 @@
     shop: null,
     remoteJson: "",
     fileSha: null,
+    dataSource: "local",
     token: "",
     dirty: false,
     lastCommit: null,
@@ -222,6 +223,7 @@
         state.fileSha = file.sha;
         state.shop = parseShop(text);
         state.remoteJson = JSON.stringify(state.shop);
+        state.dataSource = "repo";
         normalizeShop();
         return;
       } catch (err) {
@@ -235,6 +237,7 @@
     const text = await res.text();
     state.remoteJson = JSON.stringify(parseShop(text));
     state.shop = parseShop(text);
+    state.dataSource = "local";
     normalizeShop();
   }
 
@@ -353,9 +356,20 @@
   function renderRows() {
     const items = visibleProducts();
     els.rows.innerHTML = items.map(rowHtml).join("");
-    els.empty.hidden = state.shop.products.length > 0;
-    els.total.textContent = String(state.shop.products.length);
-    els.count.textContent = String(state.shop.products.length);
+
+    const total = state.shop.products.length;
+    if (total === 0) {
+      els.empty.hidden = false;
+      els.empty.innerHTML = "<b>还没有商品</b><span>点右上角「新增商品」开始录入，保存后立即上线。</span>";
+    } else if (items.length === 0) {
+      els.empty.hidden = false;
+      els.empty.innerHTML = "<b>没有匹配的商品</b><span>换个关键词或切换分类试试。</span>";
+    } else {
+      els.empty.hidden = true;
+    }
+
+    els.total.textContent = String(total);
+    els.count.textContent = String(total);
   }
 
   function renderSettings() {
@@ -703,6 +717,10 @@
       toast("先连接 GitHub 才能发布", true);
       return;
     }
+    if (state.dataSource !== "repo") {
+      toast("请先点「连接」读取仓库里的最新数据，再发布", true);
+      return;
+    }
     if (!state.dirty) {
       toast("没有需要保存的修改");
       return;
@@ -926,8 +944,10 @@
       const link = document.createElement("a");
       link.href = url;
       link.download = "data.js";
+      document.body.appendChild(link);
       link.click();
-      URL.revokeObjectURL(url);
+      link.remove();
+      window.setTimeout(() => URL.revokeObjectURL(url), 1500);
     });
 
     $("[data-draft-restore]").addEventListener("click", restoreDraft);
@@ -972,8 +992,10 @@
         const link = document.createElement("a");
         link.href = url;
         link.download = `accounts-backup-${stamp}.json`;
+        document.body.appendChild(link);
         link.click();
-        URL.revokeObjectURL(url);
+        link.remove();
+        window.setTimeout(() => URL.revokeObjectURL(url), 1500);
         toast("账号备份已导出");
       } catch (err) {
         toast(`导出失败：${err.message}`, true);
@@ -1165,6 +1187,24 @@
     }
     started = true;
 
+    // 先用已保存的令牌连上，再读数据：
+    // 否则会先展示本地旧数据，此时发布可能覆盖线上内容
+    let saved = null;
+    try {
+      saved = localStorage.getItem(LS_TOKEN);
+    } catch (e) { /* ignore */ }
+    if (saved) {
+      try {
+        await verifyToken(saved);
+      } catch (err) {
+        state.token = "";
+        setConnected(null);
+        try {
+          localStorage.removeItem(LS_TOKEN);
+        } catch (e) { /* ignore */ }
+      }
+    }
+
     try {
       await loadData();
     } catch (err) {
@@ -1173,21 +1213,6 @@
     }
     renderAll();
     checkDraft();
-
-    let saved = null;
-    try {
-      saved = localStorage.getItem(LS_TOKEN);
-    } catch (e) { /* ignore */ }
-    if (saved) {
-      try {
-        await verifyToken(saved);
-        await reloadFromRepo();
-      } catch (err) {
-        state.token = "";
-        setConnected(null);
-        localStorage.removeItem(LS_TOKEN);
-      }
-    }
   }
 
   async function boot() {

@@ -1925,6 +1925,13 @@ details[open] .plus::after {
   object-fit: contain;
 }
 
+.cart-thumb .thumb-mark {
+  color: rgba(23, 22, 16, 0.55);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+}
+
 .cart-thumb[data-cat="claude"] img,
 .cart-thumb[data-cat="grok"] img {
   width: 100%;
