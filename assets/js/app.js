@@ -240,6 +240,32 @@
     }
   }
 
+  function renderOverview() {
+    const countEl = $("[data-stat-count]");
+    if (countEl) countEl.textContent = String(SHOP.products.length);
+
+    const rows = $("[data-receipt-rows]");
+    const note = $("[data-receipt-note]");
+    if (!rows) return;
+
+    const top = SHOP.products
+      .slice()
+      .sort((a, b) => (a.featured || 99) - (b.featured || 99))
+      .slice(0, 3);
+
+    if (!top.length) return;
+
+    rows.innerHTML = top.map((product) => `
+      <button type="button" class="receipt-row" data-open-product="${product.id}">
+        <span class="receipt-brand">${esc(product.mark || CAT_MARK[product.cat] || "L")}</span>
+        <span class="receipt-name">${esc(product.name)}<small>${esc(product.sub || "")}</small></span>
+        <span class="receipt-price"><i>¥</i>${money(priceRange(product).min)}</span>
+      </button>
+    `).join("");
+
+    if (note) note.textContent = `更新于 ${SHOP.updated || "—"} · 明码标价`;
+  }
+
   function setCategory(categoryId, scroll = false) {
     state.category = categoryId;
     renderTabs();
@@ -716,6 +742,14 @@
     setTimeout(() => els.search.focus({ preventScroll: true }), 450);
   });
 
+  const receiptRows = $("[data-receipt-rows]");
+  if (receiptRows) {
+    receiptRows.addEventListener("click", (event) => {
+      const button = event.target.closest("[data-open-product]");
+      if (button) openProduct(button.dataset.openProduct);
+    });
+  }
+
   $$("[data-open-product]").forEach((button) => {
     if (!button.closest("[data-product-grid]")) {
       button.addEventListener("click", () => openProduct(button.dataset.openProduct));
@@ -846,6 +880,7 @@
 
   renderTabs();
   renderProducts();
+  renderOverview();
   renderCart();
   updateNavState();
 })();
