@@ -4220,9 +4220,8 @@ body {
   display: flex;
   align-items: center;
   gap: 16px;
-  max-width: 520px;
-  margin: 0 auto;
-  padding: 20px 22px;
+  width: 100%;
+  padding: 22px 26px;
   border: 1px solid var(--line);
   border-radius: 18px;
   background: #fff;
