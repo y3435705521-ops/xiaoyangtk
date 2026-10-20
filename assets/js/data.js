@@ -11,29 +11,20 @@ window.SHOP = {
       "en": "ALL"
     },
     {
-      "id": "gpt",
-      "name": "GPT",
-      "en": "OPENAI"
-    },
-    {
-      "id": "claude",
-      "name": "Claude",
-      "en": "ANTHROPIC"
-    },
-    {
-      "id": "grok",
-      "name": "Grok",
-      "en": "XAI"
+      "id": "tk",
+      "name": "TK",
+      "en": "TK",
+      "mark": "T"
     }
   ],
   "products": [
     {
-      "id": "582424",
-      "cat": "gpt",
+      "id": "071168",
+      "cat": "tk",
       "brand": "",
       "brandSub": "",
       "mark": "",
-      "name": "TK",
+      "name": "tk",
       "sub": "测试",
       "price": 1,
       "stock": {
@@ -42,34 +33,6 @@ window.SHOP = {
       },
       "sold": 0,
       "featured": 1,
-      "tags": [],
-      "skuLabel": "商品规格",
-      "skus": [
-        {
-          "name": "默认规格",
-          "price": 1,
-          "hint": ""
-        }
-      ],
-      "highlights": [],
-      "notes": [],
-      "cover": ""
-    },
-    {
-      "id": "807537",
-      "cat": "gpt",
-      "brand": "",
-      "brandSub": "",
-      "mark": "",
-      "name": "TK1",
-      "sub": "1",
-      "price": 1,
-      "stock": {
-        "level": "high",
-        "text": "库存充足"
-      },
-      "sold": 0,
-      "featured": 2,
       "tags": [],
       "skuLabel": "商品规格",
       "skus": [
