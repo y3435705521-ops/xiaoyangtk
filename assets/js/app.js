@@ -69,6 +69,7 @@
   };
 
   const CAT_MARK = { all: "全", gpt: "G", claude: "C", grok: "X" };
+  const CAT_COLORS = ["#111418", "#d97757", "#23262c", "#3d6b8f", "#6b4f9e", "#2f6b4f", "#a8722a"];
   const STOCK_CLASS = { high: "", mid: "is-mid", low: "is-low", out: "is-out" };
 
   function esc(value) {
@@ -176,19 +177,26 @@
       counts[product.cat] = (counts[product.cat] || 0) + 1;
     });
 
-    els.tabs.innerHTML = SHOP.categories.map((category) => `
-      <button
-        type="button"
-        class="cat-item${state.category === category.id ? " is-active" : ""}"
-        role="tab"
-        aria-selected="${state.category === category.id}"
-        data-cat="${category.id}"
-      >
-        <span class="cat-icon cat-icon-${esc(category.id)}">${esc(CAT_MARK[category.id] || "A")}</span>
-        <span class="cat-name">${esc(category.name)}</span>
-        <span class="cat-count">${counts[category.id] || 0}</span>
-      </button>
-    `).join("");
+    els.tabs.innerHTML = SHOP.categories.map((category, index) => {
+      const mark = category.mark || CAT_MARK[category.id] || (category.name || "?").slice(0, 1);
+      const icon = category.id === "all"
+        ? `<span class="cat-icon cat-icon-all">${esc(mark)}</span>`
+        : `<span class="cat-icon" style="background:${esc(category.color || CAT_COLORS[Math.max(0, index - 1) % CAT_COLORS.length])}">${esc(mark)}</span>`;
+
+      return `
+        <button
+          type="button"
+          class="cat-item${state.category === category.id ? " is-active" : ""}"
+          role="tab"
+          aria-selected="${state.category === category.id}"
+          data-cat="${category.id}"
+        >
+          ${icon}
+          <span class="cat-name">${esc(category.name)}</span>
+          <span class="cat-count">${counts[category.id] || 0}</span>
+        </button>
+      `;
+    }).join("");
 
     const current = SHOP.categories.find((category) => category.id === state.category);
     if (els.catTitle) {
@@ -336,6 +344,9 @@
     $$("[data-shop-hours-sentence]").forEach((el) => {
       el.textContent = `每天 ${hours} 在线，充值前拿不准的账号条件可以先问。`;
     });
+    $$("[data-shop-cats]").forEach((el) => {
+      el.textContent = String(SHOP.categories.filter((cat) => cat.id !== "all").length);
+    });
   }
 
   function setCategory(categoryId, scroll = false) {
@@ -345,6 +356,25 @@
     updateNavState();
     if (scroll) {
       $("#catalog").scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+  }
+
+  /** 顶部导航和移动菜单里的分类，跟随后台分类设置 */
+  function renderNavCats() {
+    const cats = SHOP.categories.filter((category) => category.id !== "all");
+
+    const navHost = $("[data-nav-cats]");
+    if (navHost) {
+      navHost.innerHTML = cats.map((category) => (
+        `<a href="#catalog" data-cat-link="${esc(category.id)}">${esc(category.name)}</a>`
+      )).join("");
+    }
+
+    const menuHost = $("[data-menu-cats]");
+    if (menuHost) {
+      menuHost.innerHTML = cats.map((category, index) => (
+        `<a href="#catalog" data-cat-link="${esc(category.id)}">${esc(category.name)} 专区 <span>${String(index + 1).padStart(2, "0")}</span></a>`
+      )).join("");
     }
   }
 
@@ -815,12 +845,13 @@
     updateNavState();
   });
 
-  $$("[data-cat-link]").forEach((link) => {
-    link.addEventListener("click", (event) => {
-      event.preventDefault();
-      setCategory(link.dataset.catLink, true);
-      toggleMenu(false);
-    });
+  // 分类链接是动态生成的，统一用事件委托
+  document.addEventListener("click", (event) => {
+    const link = event.target.closest("[data-cat-link]");
+    if (!link) return;
+    event.preventDefault();
+    setCategory(link.dataset.catLink, true);
+    toggleMenu(false);
   });
 
   $(".search-jump").addEventListener("click", () => {
@@ -987,6 +1018,7 @@
   // Boot -------------------------------------------------------------------
 
   renderTabs();
+  renderNavCats();
   renderProducts();
   renderOverview();
   renderShopInfo();

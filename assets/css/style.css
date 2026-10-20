@@ -3911,3 +3911,9 @@ body {
     font-size: 13px;
   }
 }
+
+/* 动态分类：包裹层不参与布局，子链接直接进入导航 */
+.nav-cats,
+[data-menu-cats] {
+  display: contents;
+}

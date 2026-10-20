@@ -428,6 +428,93 @@ button {
   vertical-align: 1px;
 }
 
+/* Categories --------------------------------------------------------------- */
+
+.cat-form {
+  display: grid;
+  grid-template-columns: minmax(0, 1.4fr) minmax(0, 1.2fr) 96px auto;
+  gap: 10px;
+  align-items: end;
+  margin: 16px 0 18px;
+  padding: 14px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: #fbfcfd;
+}
+
+.cat-form-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.cats-head,
+.catrow {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) 110px 190px;
+  gap: 12px;
+  align-items: center;
+  padding: 12px 16px;
+}
+
+.catrow {
+  border-top: 1px solid var(--line);
+}
+
+.catrow:hover {
+  background: #fbfcfd;
+}
+
+.cat-cell {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+}
+
+.cat-dot {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  color: #fff;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.cat-cell b {
+  overflow: hidden;
+  font-size: 13.5px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.catrow-act {
+  display: flex;
+  justify-content: flex-end;
+  gap: 6px;
+}
+
+@media (max-width: 920px) {
+  .cat-form {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .cats-head {
+    display: none;
+  }
+
+  .catrow {
+    grid-template-columns: minmax(0, 1fr) auto;
+  }
+
+  .catrow > div:nth-child(2),
+  .catrow > div:nth-child(3) {
+    display: none;
+  }
+}
+
 .arow-name span {
   display: block;
   overflow: hidden;

@@ -6,7 +6,7 @@
   <meta name="robots" content="noindex, nofollow">
   <title>管理后台 · 小杨TK</title>
   <link rel="icon" href="assets/img/favicon.svg" type="image/svg+xml">
-  <link rel="stylesheet" href="assets/css/admin.css?v=20261020p">
+  <link rel="stylesheet" href="assets/css/admin.css?v=20261020q">
 </head>
 <body>
   <div class="adm">
@@ -38,6 +38,7 @@
         商品管理
         <em data-count>0</em>
       </button>
+      <button type="button" data-tab="cats">分类管理</button>
       <button type="button" data-tab="settings">店铺设置</button>
       <button type="button" data-tab="users">会员管理</button>
     </nav>
@@ -105,6 +106,48 @@
           </label>
         </div>
         <p class="adm-hint">分类是固定结构（GPT / Claude / Grok），如需增删分类告诉我改代码。</p>
+      </div>
+    </section>
+
+    <section class="adm-view" data-view="cats" hidden>
+      <div class="adm-card">
+        <h2 class="adm-h2">商品分类</h2>
+        <p class="adm-hint">
+          分类会同步到店铺左侧分类栏和顶部导航。删除分类前，需要先把该分类下的商品改到别的分类。
+        </p>
+
+        <div class="cat-form">
+          <label class="field">
+            <span>分类名称</span>
+            <input type="text" data-cat-name placeholder="例如 Perplexity">
+          </label>
+          <label class="field">
+            <span>英文 / 副标</span>
+            <input type="text" data-cat-en placeholder="PERPLEXITY">
+          </label>
+          <label class="field">
+            <span>图标字</span>
+            <input type="text" data-cat-mark maxlength="2" placeholder="P">
+          </label>
+          <div class="cat-form-actions">
+            <button type="button" class="btn primary" data-cat-save>添加分类</button>
+            <button type="button" class="btn ghost" data-cat-cancel hidden>取消编辑</button>
+          </div>
+        </div>
+
+        <div class="adm-table">
+          <div class="adm-thead cats-head">
+            <span>分类</span>
+            <span>英文</span>
+            <span>商品数</span>
+            <span class="tar">操作</span>
+          </div>
+          <div data-cat-rows></div>
+          <div class="adm-empty" data-cats-empty hidden>
+            <b>还没有自定义分类</b>
+            <span>在上面填写名称后点「添加分类」。</span>
+          </div>
+        </div>
       </div>
     </section>
 
@@ -306,7 +349,7 @@
 
   <div class="adm-toast" data-toast hidden></div>
 
-  <script src="assets/js/auth.js?v=20261020p"></script>
-  <script src="assets/js/admin.js?v=20261020p"></script>
+  <script src="assets/js/auth.js?v=20261020q"></script>
+  <script src="assets/js/admin.js?v=20261020q"></script>
 </body>
 </html>

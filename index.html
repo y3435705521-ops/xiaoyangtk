@@ -14,7 +14,7 @@
   <meta property="og:image" content="https://www.xiaoyangtk.xin/assets/img/og-cover.png">
   <meta name="twitter:card" content="summary_large_image">
   <link rel="icon" href="assets/img/favicon.svg" type="image/svg+xml">
-  <link rel="stylesheet" href="assets/css/style.css?v=20261020p">
+  <link rel="stylesheet" href="assets/css/style.css?v=20261020q">
 </head>
 <body>
   <svg class="svg-sprite" aria-hidden="true">
@@ -100,9 +100,7 @@
 
       <nav class="main-nav" aria-label="主导航">
         <a href="#catalog" class="is-current">逛小店</a>
-        <a href="#catalog" data-cat-link="gpt">GPT</a>
-        <a href="#catalog" data-cat-link="claude">Claude</a>
-        <a href="#catalog" data-cat-link="grok">Grok</a>
+        <span class="nav-cats" data-nav-cats></span>
         <a href="#service">服务说明</a>
         <a href="#faq">买前必读</a>
       </nav>
@@ -133,9 +131,7 @@
 
     <div class="mobile-menu" data-mobile-menu hidden>
       <a href="#catalog">逛小店 <span>SHOP</span></a>
-      <a href="#catalog" data-cat-link="gpt">GPT 专区 <span>01</span></a>
-      <a href="#catalog" data-cat-link="claude">Claude 专区 <span>02</span></a>
-      <a href="#catalog" data-cat-link="grok">Grok 专区 <span>03</span></a>
+      <span data-menu-cats></span>
       <a href="#service">服务说明 <span>INFO</span></a>
       <a href="#faq">买前必读 <span>FAQ</span></a>
       <a href="account.html">登录 / 注册 <span>ACCOUNT</span></a>
@@ -158,7 +154,7 @@
           <a class="text-link" href="#faq">发货与售后说明</a>
         </div>
         <dl class="hero-stats">
-          <div><dt>商品分类</dt><dd>3<sup>类</sup></dd></div>
+          <div><dt>商品分类</dt><dd><span data-shop-cats>3</span><sup>类</sup></dd></div>
           <div><dt>在售商品</dt><dd><span data-stat-count>0</span><sup>款</sup></dd></div>
           <div><dt>自动发货</dt><dd>24<sup>h</sup></dd></div>
         </dl>
@@ -498,7 +494,7 @@
 
   <div class="toast" role="status" aria-live="polite" data-toast></div>
 
-  <script src="assets/js/auth.js?v=20261020p"></script>
+  <script src="assets/js/auth.js?v=20261020q"></script>
   <script>
     // data.js 带时间戳加载，避免浏览器缓存导致"后台已发布、前台看不到"
     (function () {
@@ -506,12 +502,12 @@
       data.src = "assets/js/data.js?t=" + Date.now();
       data.onload = function () {
         var app = document.createElement("script");
-        app.src = "assets/js/app.js?v=20261020p";
+        app.src = "assets/js/app.js?v=20261020q";
         document.body.appendChild(app);
       };
       data.onerror = function () {
         var app = document.createElement("script");
-        app.src = "assets/js/app.js?v=20261020p";
+        app.src = "assets/js/app.js?v=20261020q";
         document.body.appendChild(app);
       };
       document.head.appendChild(data);

@@ -13,6 +13,14 @@
   const $ = (selector, scope = document) => scope.querySelector(selector);
   const $$ = (selector, scope = document) => Array.from(scope.querySelectorAll(selector));
 
+  const CAT_COLORS = ["#111418", "#d97757", "#23262c", "#3d6b8f", "#6b4f9e", "#2f6b4f", "#a8722a"];
+  const CAT_MARK = { gpt: "G", claude: "C", grok: "X" };
+
+  function catColor(category, index) {
+    if (category && category.color) return category.color;
+    return CAT_COLORS[Math.max(0, (index || 1) - 1) % CAT_COLORS.length];
+  }
+
   const els = {
     conn: $("[data-conn]"),
     connText: $("[data-conn-text]"),
@@ -43,6 +51,13 @@
     coverEmpty: $("[data-cover-empty]"),
     uploadCover: $("[data-upload-cover]"),
     coverFile: $("[data-cover-file]"),
+    catName: $("[data-cat-name]"),
+    catEn: $("[data-cat-en]"),
+    catMark: $("[data-cat-mark]"),
+    catSave: $("[data-cat-save]"),
+    catCancel: $("[data-cat-cancel]"),
+    catRows: $("[data-cat-rows]"),
+    catsEmpty: $("[data-cats-empty]"),
     app: $(".adm"),
     gate: $("[data-gate]"),
     gateForm: $("[data-gate-form]"),
@@ -71,6 +86,8 @@
     editing: null,
     pendingDelete: null,
     pendingUserDelete: null,
+    catEditing: null,
+    pendingCatDelete: null,
     busy: false,
     keyword: "",
     cat: "all",
@@ -383,6 +400,92 @@
     renderRows();
     renderSettings();
     renderUsers();
+    renderCats();
+  }
+
+  function renderCats() {
+    if (!els.catRows) return;
+    const cats = state.shop.categories.filter((cat) => cat.id !== "all");
+
+    els.catRows.innerHTML = cats.map((cat, index) => {
+      const count = state.shop.products.filter((product) => product.cat === cat.id).length;
+      const mark = cat.mark || CAT_MARK[cat.id] || (cat.name || "?").slice(0, 1);
+      const pending = state.pendingCatDelete === cat.id;
+      const actions = pending
+        ? `<button type="button" class="text-act danger" data-cat-del-confirm="${cat.id}">确认删除</button>
+           <button type="button" class="text-act" data-cat-del-cancel>取消</button>`
+        : `<button type="button" class="text-act" data-cat-edit="${cat.id}">编辑</button>
+           <button type="button" class="text-act danger" data-cat-del="${cat.id}">删除</button>`;
+
+      return `
+        <div class="catrow" data-cat-row="${esc(cat.id)}">
+          <div class="cat-cell">
+            <span class="cat-dot" style="background:${esc(catColor(cat, index + 1))}">${esc(mark)}</span>
+            <b>${esc(cat.name)}</b>
+          </div>
+          <div>${esc(cat.en || "—")}</div>
+          <div>${count} 款</div>
+          <div class="catrow-act">${actions}</div>
+        </div>`;
+    }).join("");
+
+    els.catsEmpty.hidden = cats.length > 0;
+  }
+
+  function resetCatForm() {
+    state.catEditing = null;
+    state.pendingCatDelete = null;
+    els.catName.value = "";
+    els.catEn.value = "";
+    els.catMark.value = "";
+    els.catSave.textContent = "添加分类";
+    els.catCancel.hidden = true;
+  }
+
+  function saveCategory() {
+    const name = els.catName.value.trim();
+    const en = els.catEn.value.trim();
+    const mark = els.catMark.value.trim();
+
+    if (!name) {
+      toast("请填写分类名称", true);
+      els.catName.focus();
+      return;
+    }
+
+    if (state.catEditing) {
+      const cat = state.shop.categories.find((item) => item.id === state.catEditing);
+      if (!cat) {
+        resetCatForm();
+        return;
+      }
+      cat.name = name;
+      cat.en = en;
+      if (mark) cat.mark = mark;
+      toast("分类已更新，记得保存并发布");
+    } else {
+      const base = (en || name)
+        .toLowerCase()
+        .replace(/[^a-z0-9\u4e00-\u9fa5]+/g, "") || "cat";
+      let id = base.slice(0, 16);
+      let n = 1;
+      while (state.shop.categories.some((item) => item.id === id)) {
+        n += 1;
+        id = `${base.slice(0, 13)}${n}`;
+      }
+      state.shop.categories.push({
+        id,
+        name,
+        en: en || name.toUpperCase(),
+        mark: mark || name.slice(0, 1)
+      });
+      toast("分类已添加，记得保存并发布");
+    }
+
+    resetCatForm();
+    markDirty();
+    renderAll();
+    renderRows();
   }
 
   async function renderUsers() {
@@ -1021,6 +1124,62 @@
         } finally {
           els.retryBuild.disabled = false;
           els.retryBuild.textContent = "重试构建";
+        }
+      });
+    }
+
+    if (els.catSave) {
+      els.catSave.addEventListener("click", saveCategory);
+      els.catCancel.addEventListener("click", () => {
+        resetCatForm();
+        renderCats();
+      });
+
+      els.catRows.addEventListener("click", (event) => {
+        const edit = event.target.closest("[data-cat-edit]");
+        const del = event.target.closest("[data-cat-del]");
+        const confirmDel = event.target.closest("[data-cat-del-confirm]");
+
+        if (edit) {
+          const cat = state.shop.categories.find((item) => item.id === edit.dataset.catEdit);
+          if (!cat) return;
+          state.catEditing = cat.id;
+          els.catName.value = cat.name || "";
+          els.catEn.value = cat.en || "";
+          els.catMark.value = cat.mark || "";
+          els.catSave.textContent = "保存修改";
+          els.catCancel.hidden = false;
+          els.catName.focus();
+          return;
+        }
+
+        if (del) {
+          const id = del.dataset.catDel;
+          const count = state.shop.products.filter((product) => product.cat === id).length;
+          if (count > 0) {
+            toast(`该分类下还有 ${count} 个商品，请先把它们改到其他分类`, true);
+            return;
+          }
+          state.pendingCatDelete = id;
+          renderCats();
+          return;
+        }
+
+        if (confirmDel) {
+          const id = confirmDel.dataset.catDelConfirm;
+          state.shop.categories = state.shop.categories.filter((item) => item.id !== id);
+          if (state.cat === id) state.cat = "all";
+          state.pendingCatDelete = null;
+          markDirty();
+          renderAll();
+          renderRows();
+          toast("分类已删除，记得保存并发布");
+          return;
+        }
+
+        if (event.target.closest("[data-cat-del-cancel]")) {
+          state.pendingCatDelete = null;
+          renderCats();
         }
       });
     }
