@@ -1041,7 +1041,11 @@
         if (iconEl) iconEl.hidden = false;
       }
     }
-    if (labelEl) labelEl.textContent = session ? "我的账号" : "登录";
+    const displayName = session ? String(session.nickname || session.username || "我的账号") : "登录";
+    if (labelEl) labelEl.textContent = displayName;
+
+    const menuLabel = $("[data-account-menu-label]");
+    if (menuLabel) menuLabel.textContent = session ? displayName : "登录 / 注册";
   }
 
   // Boot -------------------------------------------------------------------
