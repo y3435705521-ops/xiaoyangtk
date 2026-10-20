@@ -496,8 +496,24 @@
 
   <div class="toast" role="status" aria-live="polite" data-toast></div>
 
-  <script src="assets/js/auth.js?v=20261020i"></script>
-  <script src="assets/js/data.js?v=20261020i"></script>
-  <script src="assets/js/app.js?v=20261020i"></script>
+  <script src="assets/js/auth.js?v=20261020j"></script>
+  <script>
+    // data.js 带时间戳加载，避免浏览器缓存导致"后台已发布、前台看不到"
+    (function () {
+      var data = document.createElement("script");
+      data.src = "assets/js/data.js?t=" + Date.now();
+      data.onload = function () {
+        var app = document.createElement("script");
+        app.src = "assets/js/app.js?v=20261020j";
+        document.body.appendChild(app);
+      };
+      data.onerror = function () {
+        var app = document.createElement("script");
+        app.src = "assets/js/app.js?v=20261020j";
+        document.body.appendChild(app);
+      };
+      document.head.appendChild(data);
+    })();
+  </script>
 </body>
 </html>

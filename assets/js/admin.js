@@ -29,6 +29,7 @@
     banner: $("[data-draft-banner]"),
     bannerTime: $("[data-draft-time]"),
     build: $("[data-build]"),
+    retryBuild: $("[data-retry-build]"),
     toast: $("[data-toast]"),
     scrim: $("[data-scrim]"),
     auth: $("[data-auth]"),
@@ -64,6 +65,7 @@
     fileSha: null,
     token: "",
     dirty: false,
+    lastCommit: null,
     editorIndex: -1,
     editing: null,
     pendingDelete: null,
@@ -729,6 +731,7 @@
 
       state.dirty = false;
       state.fileSha = res.content && res.content.sha ? res.content.sha : state.fileSha;
+      state.lastCommit = res.commit ? res.commit.sha : null;
       state.remoteJson = JSON.stringify(state.shop);
       clearDraft();
       els.banner.hidden = true;
@@ -753,18 +756,32 @@
   }
 
   async function pollBuild() {
-    for (let i = 0; i < 20; i += 1) {
+    const target = state.lastCommit;
+    if (els.retryBuild) els.retryBuild.hidden = true;
+
+    for (let i = 0; i < 25; i += 1) {
       await new Promise((resolve) => window.setTimeout(resolve, 4000));
       try {
-        const build = await gh(`/repos/${OWNER}/${REPO}/pages/builds/latest`);
+        const builds = await gh(`/repos/${OWNER}/${REPO}/pages/builds?per_page=8`);
+        const build = target
+          ? builds.find((item) => item.commit === target)
+          : builds[0];
+
+        if (!build) {
+          els.build.textContent = "等待构建排队…";
+          continue;
+        }
+
         if (build.status === "built") {
           els.build.textContent = `构建完成 · ${new Date(build.updated_at).toLocaleTimeString("zh-CN", { hour12: false })}`;
+          if (els.retryBuild) els.retryBuild.hidden = true;
           toast("站点已更新，刷新首页即可看到");
           return;
         }
         if (build.status === "errored") {
-          els.build.textContent = "构建失败";
-          toast("Pages 构建失败，请到 GitHub Actions 查看日志", true);
+          els.build.textContent = "构建失败（短时间内多次发布会限流）";
+          if (els.retryBuild) els.retryBuild.hidden = false;
+          toast("Pages 构建失败，可点「重试构建」；短时间内多次发布会触发频率限制", true);
           return;
         }
         els.build.textContent = `GitHub Pages 构建中…（${build.status}）`;
@@ -773,7 +790,7 @@
         return;
       }
     }
-    els.build.textContent = "构建超时，稍后自行刷新";
+    els.build.textContent = "构建超时，稍后刷新页面查看";
   }
 
   /* Events ----------------------------------------------------------------- */
@@ -938,6 +955,28 @@
       await renderUsers();
       toast("会员列表已刷新");
     });
+
+    if (els.retryBuild) {
+      els.retryBuild.addEventListener("click", async () => {
+        if (!state.token) {
+          openAuth();
+          return;
+        }
+        els.retryBuild.disabled = true;
+        els.retryBuild.textContent = "触发中…";
+        try {
+          await gh(`/repos/${OWNER}/${REPO}/pages/builds`, { method: "POST", body: "{}" });
+          els.build.textContent = "已请求重新构建…";
+          els.retryBuild.hidden = true;
+          pollBuild();
+        } catch (err) {
+          toast(`重试失败：${err.message}`, true);
+        } finally {
+          els.retryBuild.disabled = false;
+          els.retryBuild.textContent = "重试构建";
+        }
+      });
+    }
 
     els.userRows.addEventListener("click", async (event) => {
       const disable = event.target.closest("[data-user-disable]");
