@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120">
+  <rect width="120" height="120" rx="26" fill="#df3f26"/>
+  <rect x="9" y="9" width="102" height="102" rx="19" fill="none" stroke="#f7f1e4" stroke-width="1.6" opacity=".6"/>
+  <text x="60" y="84" font-family="Songti SC, SimSun, serif" font-size="70" font-weight="700" fill="#f7f1e4" text-anchor="middle">龙</text>
+</svg>
