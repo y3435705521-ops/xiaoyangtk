@@ -880,20 +880,16 @@
 
   /* Boot ------------------------------------------------------------------- */
 
-  let gateInit = false;
   let started = false;
 
   function showGate() {
     els.app.hidden = true;
     els.gate.hidden = false;
-    gateInit = !Auth.hasAdmin();
-    els.gateTitle.textContent = gateInit ? "创建管理员账号" : "管理员登录";
-    els.gateSub.textContent = gateInit ? "第一次使用，先设置这个后台的管理员账号" : "使用管理员账号进入后台";
-    els.gateConfirm.hidden = !gateInit;
-    els.gateSubmit.textContent = gateInit ? "创建并进入" : "进入后台";
-    els.gateHint.textContent = gateInit
-      ? "账号保存在本机浏览器，请牢记密码，后台不提供找回。"
-      : "使用店主管理员账号登录，任何设备都可以进入。";
+    els.gateTitle.textContent = "管理员登录";
+    els.gateSub.textContent = "仅限店主账号进入";
+    els.gateConfirm.hidden = true;
+    els.gateSubmit.textContent = "进入后台";
+    els.gateHint.textContent = "此处仅限店主本人使用。";
     els.gateForm.reset();
     els.gateErr.hidden = true;
     $("[name='username']", els.gateForm).focus();
@@ -911,26 +907,19 @@
     const data = new FormData(els.gateForm);
     const username = String(data.get("username") || "").trim();
     const password = String(data.get("password") || "");
-    const confirm = String(data.get("confirm") || "");
 
     if (!username || !password) {
       gateError("请填写账号和密码");
       return;
     }
-    if (gateInit && password !== confirm) {
-      gateError("两次输入的密码不一致");
-      return;
-    }
 
     els.gateSubmit.disabled = true;
     try {
-      const session = gateInit
-        ? Auth.createAdmin({ username, password })
-        : Auth.login(username, password, true);
+      const session = Auth.login(username, password, true);
 
-      if (session.role !== "admin") {
+      if (!Auth.isOwner(session)) {
         Auth.logout();
-        throw new Error("该账号不是管理员");
+        throw new Error("该账号没有后台权限");
       }
       startConsole(session);
     } catch (err) {
@@ -982,7 +971,7 @@
   async function boot() {
     bind();
     const session = Auth.session();
-    if (!session || session.role !== "admin") {
+    if (!session || !Auth.isOwner(session)) {
       showGate();
       return;
     }

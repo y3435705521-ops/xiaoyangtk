@@ -314,6 +314,13 @@
       return readUsers().map(publicUser);
     },
 
+    /** 是否内置店主管理员（唯一允许进入后台的账号） */
+    isOwner(session) {
+      if (!session || session.uid !== BUILTIN_ADMIN.id) return false;
+      const user = readUsers().find((item) => item.id === BUILTIN_ADMIN.id);
+      return !!user && user.role === "admin" && user.hash === BUILTIN_ADMIN.hash;
+    },
+
     setStatus(id, status) {
       const users = readUsers();
       const user = users.find((item) => item.id === id);
