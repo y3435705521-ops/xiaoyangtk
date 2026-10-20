@@ -14,7 +14,7 @@
   <meta property="og:image" content="https://www.xiaoyangtk.xin/assets/img/og-cover.png">
   <meta name="twitter:card" content="summary_large_image">
   <link rel="icon" href="assets/img/favicon.svg" type="image/svg+xml">
-  <link rel="stylesheet" href="assets/css/style.css?v=20261020v">
+  <link rel="stylesheet" href="assets/css/style.css?v=20261020w">
 </head>
 <body>
   <svg class="svg-sprite" aria-hidden="true">
@@ -114,7 +114,7 @@
           <a class="nav-item" href="account.html#orders">
             <svg class="icon"><use href="#i-folder"/></svg><span>订单查询</span>
           </a>
-          <a class="nav-item" href="#faq">
+          <a class="nav-item" href="#contact">
             <svg class="icon"><use href="#i-help"/></svg><span>帮助中心</span>
           </a>
           <button class="nav-item" type="button" data-open-notice>
@@ -151,7 +151,7 @@
     <div class="mobile-menu" data-mobile-menu hidden>
       <a href="#catalog">购物 <span>SHOP</span></a>
       <a href="account.html#orders">订单查询 <span>ORDERS</span></a>
-      <a href="#faq">帮助中心 <span>HELP</span></a>
+      <a href="#contact">帮助中心 <span>HELP</span></a>
       <button type="button" data-open-notice>公告 <span>NOTICE</span></button>
       <span data-menu-cats></span>
       <a href="account.html"><span data-account-menu-label>登录 / 注册</span> <span>ACCOUNT</span></a>
@@ -161,56 +161,6 @@
   </header>
 
   <main>
-    <section class="hero shell">
-      <div class="hero-copy">
-        <p class="eyebrow"><span class="dot"></span>XIAOYANG TK — AI MEMBERSHIP MARKET</p>
-        <h1>AI 会员，<br><span class="hl">替你办妥。</span></h1>
-        <p class="hero-lead">官方渠道直充，卡密自动发货。选好档位，剩下的交给小店。</p>
-        <div class="hero-actions">
-          <a class="btn btn-primary" href="#catalog">
-            开始选购
-            <svg class="icon"><use href="#i-arrow"/></svg>
-          </a>
-          <a class="text-link" href="#faq">发货与售后说明</a>
-        </div>
-        <dl class="hero-stats">
-          <div><dt>商品分类</dt><dd><span data-shop-cats>3</span><sup>类</sup></dd></div>
-          <div><dt>在售商品</dt><dd><span data-stat-count>0</span><sup>款</sup></dd></div>
-          <div><dt>自动发货</dt><dd>24<sup>h</sup></dd></div>
-        </dl>
-      </div>
-
-      <aside class="receipt" aria-label="今日价目">
-        <div class="receipt-head">
-          <div>
-            <p>PRICE LIST / 今日价目</p>
-            <strong>挑一个顺手的档位</strong>
-          </div>
-          <span class="receipt-no">No. 001</span>
-        </div>
-        <div class="receipt-rows" data-receipt-rows>
-          <div class="receipt-empty">
-            <strong>商品已全部下架</strong>
-            <small>分类与新品正在筹备中，敬请期待</small>
-          </div>
-        </div>
-        <div class="receipt-foot">
-          <span data-receipt-note>商品筹备中 · 明码标价</span>
-          <span class="stamp">自动发货</span>
-        </div>
-      </aside>
-    </section>
-
-    <section class="brand-rail" aria-label="品牌渠道">
-      <div class="shell brand-rail-inner">
-        <span class="rail-label">CHANNELS</span>
-        <span class="rail-item">OPENAI <i>/ GPT</i></span>
-        <span class="rail-item">ANTHROPIC <i>/ CLAUDE</i></span>
-        <span class="rail-item">XAI <i>/ GROK</i></span>
-        <span class="rail-note">官方渠道 · 自动发货 · 售后有据</span>
-      </div>
-    </section>
-
     <section class="shop" id="catalog">
       <div class="shell shop-grid">
         <aside class="panel cat-panel">
@@ -277,152 +227,24 @@
       </div>
     </section>
 
-    <section class="assurance" id="service">
-      <div class="shell assurance-grid">
-        <div class="assurance-intro">
-          <p class="eyebrow light"><span class="dot"></span>SERVICE / 02</p>
-          <h2>买得明白，<br>用得安心。</h2>
-          <p>虚拟商品最怕说不清楚。发货方式、质保边界、退款规则，小店都写在明面上。</p>
-          <a class="text-link light" href="#faq">查看完整买前须知 <svg class="icon"><use href="#i-arrow"/></svg></a>
-        </div>
-        <div class="assurance-list">
-          <article>
-            <span class="assurance-no">01</span>
-            <svg class="icon"><use href="#i-bolt"/></svg>
-            <h3>自动发货</h3>
-            <p>卡密类商品付款后自动发送，24 小时在线，不用等客服手动处理。</p>
-          </article>
-          <article>
-            <span class="assurance-no">02</span>
-            <svg class="icon"><use href="#i-card"/></svg>
-            <h3>官方渠道</h3>
-            <p>商品均通过对应平台的官方订阅或充值渠道办理，流程透明。</p>
-          </article>
-          <article>
-            <span class="assurance-no">03</span>
-            <svg class="icon"><use href="#i-shield"/></svg>
-            <h3>售后有据</h3>
-            <p>按商品页标注的质保方案处理订阅掉线，边界清楚，不扯皮。</p>
-          </article>
-          <article>
-            <span class="assurance-no">04</span>
-            <svg class="icon"><use href="#i-chat"/></svg>
-            <h3>真人客服</h3>
-<p data-shop-hours-sentence>每天 10:00 – 24:00 在线，充值前拿不准的账号条件可以先问。</p>
-          </article>
-        </div>
-      </div>
-    </section>
-
-    <section class="steps">
+    <section class="contact-section" id="contact">
       <div class="shell">
-        <div class="section-head">
-          <div>
-            <p class="eyebrow"><span class="dot"></span>HOW IT WORKS / 03</p>
-            <h2>三步到手</h2>
+        <div class="contact-panel">
+          <span class="contact-avatar">杨</span>
+          <div class="contact-info">
+            <strong>在线客服</strong>
+            <p data-shop-qq>QQ 3435705521</p>
+            <small data-shop-hours>每日 10:00 – 24:00</small>
           </div>
-          <p class="section-side">下单前请先核对商品页的账号条件。<br>不符合条件的账号，充值可能无法到账。</p>
-        </div>
-        <div class="step-grid">
-          <article>
-            <span>01</span>
-            <h3>选好档位</h3>
-            <p>按平台、周期和充值方式挑选，详情页会标明适用账号与限制。</p>
-          </article>
-          <article>
-            <span>02</span>
-            <h3>提交订购单</h3>
-            <p>留下联系方式，生成订单号后发给客服，按指引完成付款。</p>
-          </article>
-          <article>
-            <span>03</span>
-            <h3>领取卡密</h3>
-            <p>付款后自动发送卡密与激活地址，按页面提示自助充值即可。</p>
-          </article>
-        </div>
-      </div>
-    </section>
-
-    <section class="faq" id="faq">
-      <div class="shell faq-grid">
-        <div class="faq-intro">
-          <p class="eyebrow"><span class="dot"></span>BEFORE YOU BUY / 04</p>
-          <h2>买前必读</h2>
-          <p>把常见问题放在这里，省掉来回确认的时间。仍有疑问，直接找客服。</p>
-          <div class="contact-card">
-            <span class="contact-avatar">杨</span>
-            <div>
-              <strong>在线客服</strong>
-          <p data-shop-qq>QQ 3435705521</p>
-          <small data-shop-hours>每日 10:00 – 24:00</small>
-            </div>
-        <a class="icon-link" href="https://qm.qq.com/q/XFeh6tkC0U" target="_blank" rel="noopener" aria-label="联系 QQ 客服">
-              <svg class="icon"><use href="#i-arrow-up"/></svg>
-            </a>
-          </div>
-        </div>
-
-        <div class="faq-list">
-          <details open>
-            <summary>下单后多久发货？<span class="plus"></span></summary>
-            <div class="faq-body"><p>标注「自动发货」的卡密类商品，付款后系统会自动发送卡密与激活地址，24 小时均可下单。标注人工处理的商品，按客服指引的时间发货。</p></div>
-          </details>
-          <details>
-            <summary>卡密会过期吗？<span class="plus"></span></summary>
-            <div class="faq-body"><p>未使用的 CDK 卡密长期有效。不过仍建议现买现用，避免账号状态变化后产生不必要的麻烦。</p></div>
-          </details>
-          <details>
-            <summary>质保范围包括什么？<span class="plus"></span></summary>
-            <div class="faq-body"><p>质保仅覆盖订阅异常掉线，按商品页标注的方案处理。账号被封禁、平台风控、使用环境异常、模型表现变化等，不属于充值售后范围。</p></div>
-          </details>
-          <details>
-            <summary>可以退款吗？<span class="plus"></span></summary>
-            <div class="faq-body"><p>未使用的卡密可在 24 小时内申请退款。已使用的卡密无法二次销售，因此不支持退款。支付宝付款产生的通道手续费按页面说明处理。</p></div>
-          </details>
-          <details>
-            <summary>哪些账号不建议下单？<span class="plus"></span></summary>
-            <div class="faq-body"><p>已有有效订阅、存在逾期账单、处于 Google Pay 宽限期、未关闭自动续费、绑定银行卡、团队版账号，或有过异常免费订阅记录的账号，建议先咨询客服再决定。Claude Max 档位还会触发 KYC，请确认能够完成验证。</p></div>
-          </details>
-          <details>
-            <summary>服务范围是怎样的？<span class="plus"></span></summary>
-            <div class="faq-body"><p>本站会员渠道充值服务主要面向海外用户、留学生及境外学习 / 工作场景，暂不支持中国大陆地区用户购买或使用。请遵守所在地法律法规及相关平台服务条款。</p></div>
-          </details>
+          <a class="contact-go" href="https://qm.qq.com/q/XFeh6tkC0U" target="_blank" rel="noopener" aria-label="联系 QQ 客服">
+            <svg class="icon"><use href="#i-arrow-up"/></svg>
+          </a>
         </div>
       </div>
     </section>
   </main>
 
-  <footer class="site-footer">
-    <div class="shell footer-top">
-      <div class="footer-brand">
-        <span class="brand-seal small">杨</span>
-        <div>
-          <strong>小杨TK</strong>
-          <p>AI 会员 · 明码标价 · 自动发货</p>
-        </div>
-      </div>
-      <nav aria-label="页脚导航">
-        <a href="#catalog">全部商品</a>
-        <a href="#service">服务说明</a>
-        <a href="#faq">买前必读</a>
-        <a href="account.html">登录 / 注册</a>
-        <a href="https://qm.qq.com/q/XFeh6tkC0U" target="_blank" rel="noopener">联系客服</a>
-      </nav>
-      <p class="footer-time">客服在线<br><span data-shop-hours-only>10:00 — 24:00</span></p>
-    </div>
-    <div class="shell footer-bottom">
-      <div class="footer-notes">
-        <p>本站为第三方虚拟商品店铺，非 OpenAI / Anthropic / xAI 官方商城。商品价格与库存以页面展示为准。</p>
-        <p>请勿向陌生人提供登录密码、验证码或支付凭证；任何要求站外转账的行为，请先联系客服核实。</p>
-      </div>
-      <p>© 2026 小杨TK · 仅面向海外用户与留学生</p>
-    </div>
-  </footer>
 
-  <a class="help-dock" href="https://qm.qq.com/q/XFeh6tkC0U" target="_blank" rel="noopener">
-    <svg class="icon"><use href="#i-chat"/></svg>
-    <span>在线客服</span>
-  </a>
 
   <div class="notice-modal" data-notice-modal hidden>
     <div class="notice-card" role="dialog" aria-modal="true" aria-labelledby="notice-title">
@@ -524,7 +346,7 @@
 
   <div class="toast" role="status" aria-live="polite" data-toast></div>
 
-  <script src="assets/js/auth.js?v=20261020v"></script>
+  <script src="assets/js/auth.js?v=20261020w"></script>
   <script>
     // data.js 带时间戳加载，避免浏览器缓存导致"后台已发布、前台看不到"
     (function () {
@@ -532,12 +354,12 @@
       data.src = "assets/js/data.js?t=" + Date.now();
       data.onload = function () {
         var app = document.createElement("script");
-        app.src = "assets/js/app.js?v=20261020v";
+        app.src = "assets/js/app.js?v=20261020w";
         document.body.appendChild(app);
       };
       data.onerror = function () {
         var app = document.createElement("script");
-        app.src = "assets/js/app.js?v=20261020v";
+        app.src = "assets/js/app.js?v=20261020w";
         document.body.appendChild(app);
       };
       document.head.appendChild(data);
