@@ -904,3 +904,215 @@ button {
     grid-template-columns: 1fr 80px;
   }
 }
+
+/* Admin account & gate ----------------------------------------------------- */
+
+.adm-user {
+  display: inline-flex;
+  align-items: center;
+  height: 28px;
+  padding: 0 12px;
+  border-radius: 999px;
+  background: #f1f2f4;
+  color: var(--ink-soft);
+  font-size: 12px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.gate {
+  position: fixed;
+  inset: 0;
+  z-index: 80;
+  display: grid;
+  place-items: center;
+  padding: 20px;
+  background: var(--bg);
+}
+
+.gate-card {
+  width: min(400px, 100%);
+  padding: 26px;
+  border: 1px solid var(--line);
+  border-radius: 20px;
+  background: var(--panel);
+  box-shadow: 0 30px 70px -50px rgba(16, 24, 40, 0.8);
+}
+
+.gate-brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 22px;
+}
+
+.gate-brand strong {
+  display: block;
+  font-size: 14.5px;
+  line-height: 1.2;
+}
+
+.gate-brand small {
+  display: block;
+  color: var(--faint);
+  font-family: var(--mono);
+  font-size: 9px;
+  letter-spacing: 0.16em;
+}
+
+.gate-card h2 {
+  margin: 0;
+  font-size: 19px;
+  letter-spacing: -0.01em;
+}
+
+.gate-sub {
+  margin: 6px 0 18px;
+  color: var(--muted);
+  font-size: 12.5px;
+}
+
+.gate-card form {
+  display: grid;
+  gap: 13px;
+}
+
+.gate-btn {
+  height: 44px;
+  margin-top: 4px;
+  border-radius: 11px;
+}
+
+.gate-hint {
+  margin: 14px 0 0;
+  color: var(--faint);
+  font-size: 11.5px;
+  line-height: 1.7;
+}
+
+.gate-back {
+  display: inline-block;
+  margin-top: 16px;
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.gate-back:hover {
+  color: var(--ink);
+}
+
+/* Member list -------------------------------------------------------------- */
+
+.adm-h2-flat {
+  margin: 0;
+}
+
+.users-head,
+.urow {
+  display: grid;
+  grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr) 172px 88px 186px;
+  gap: 12px;
+  align-items: center;
+  padding: 12px 16px;
+}
+
+.urow {
+  border-top: 1px solid var(--line);
+  transition: background 0.16s ease;
+}
+
+.urow:hover {
+  background: #fbfcfd;
+}
+
+.urow-name {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+
+.urow-name b {
+  overflow: hidden;
+  font-size: 13.5px;
+  font-weight: 600;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.badge {
+  flex: none;
+  padding: 1px 7px;
+  border-radius: 999px;
+  background: #eef0f3;
+  color: var(--muted);
+  font-size: 10.5px;
+  font-weight: 600;
+}
+
+.urow-nick,
+.urow-time {
+  overflow: hidden;
+  color: var(--muted);
+  font-size: 12.5px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.urow-status {
+  color: var(--green);
+  font-size: 12.5px;
+}
+
+.urow-status.is-off {
+  color: #9aa1ab;
+}
+
+.urow-act {
+  display: flex;
+  justify-content: flex-end;
+  gap: 6px;
+}
+
+.urow-self {
+  color: var(--faint);
+  font-size: 11.5px;
+}
+
+@media (max-width: 920px) {
+  .users-head {
+    display: none;
+  }
+
+  .urow {
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 6px 12px;
+    padding: 12px 14px;
+  }
+
+  .urow-name {
+    grid-column: 1 / -1;
+  }
+
+  .urow-nick {
+    font-size: 11.5px;
+  }
+
+  .urow-time {
+    display: none;
+  }
+
+  .urow-status {
+    grid-row: 2;
+    font-size: 11.5px;
+  }
+
+  .urow-act {
+    grid-column: 2;
+    grid-row: 2;
+  }
+
+  .adm-user {
+    order: -1;
+  }
+}

@@ -20,6 +20,7 @@
       </div>
 
       <div class="adm-actions">
+        <span class="adm-user" data-admin-name hidden></span>
         <span class="conn" data-conn>
           <i></i>
           <span data-conn-text>未连接 GitHub</span>
@@ -27,6 +28,7 @@
         <button type="button" class="btn ghost" data-open-auth>连接</button>
         <a class="btn ghost" href="./" target="_blank" rel="noopener">查看站点</a>
         <button type="button" class="btn primary" data-save>保存并发布</button>
+        <button type="button" class="btn ghost" data-logout>退出</button>
       </div>
     </header>
 
@@ -36,6 +38,7 @@
         <em data-count>0</em>
       </button>
       <button type="button" data-tab="settings">店铺设置</button>
+      <button type="button" data-tab="users">会员管理</button>
     </nav>
 
     <div class="adm-banner" data-draft-banner hidden>
@@ -104,10 +107,74 @@
       </div>
     </section>
 
+    <section class="adm-view" data-view="users" hidden>
+      <div class="adm-card">
+        <div class="adm-toolbar">
+          <h2 class="adm-h2 adm-h2-flat">会员账号</h2>
+          <span class="grow"></span>
+          <button type="button" class="btn ghost small" data-refresh-users>刷新列表</button>
+        </div>
+        <div class="adm-table">
+          <div class="adm-thead users-head">
+            <span>账号</span>
+            <span>昵称</span>
+            <span>注册时间</span>
+            <span>状态</span>
+            <span class="tar">操作</span>
+          </div>
+          <div data-user-rows></div>
+          <div class="adm-empty" data-users-empty hidden>
+            <b>还没有注册会员</b>
+            <span>把 <code>account.html</code> 发给客户，注册后会出现在这里。</span>
+          </div>
+        </div>
+        <p class="adm-foot">
+          共 <b data-user-total>0</b> 个账号
+          <span class="dot">·</span>
+          账号数据保存在当前浏览器
+        </p>
+      </div>
+    </section>
+
     <footer class="adm-bottom">
       <span>提交会直接写入 <code>main</code> 分支，GitHub Pages 自动重建。</span>
       <span data-build>—</span>
     </footer>
+  </div>
+
+  <div class="gate" data-gate hidden>
+    <div class="gate-card">
+      <div class="gate-brand">
+        <span class="adm-seal">杨</span>
+        <div>
+          <strong>小杨TK</strong>
+          <small>ADMIN CONSOLE</small>
+        </div>
+      </div>
+
+      <h2 data-gate-title>管理员登录</h2>
+      <p class="gate-sub" data-gate-sub>使用管理员账号进入后台</p>
+
+      <form data-gate-form novalidate>
+        <label class="field">
+          <span>管理员账号</span>
+          <input type="text" name="username" autocomplete="username" spellcheck="false" placeholder="2–20 位中文 / 字母 / 数字">
+        </label>
+        <label class="field">
+          <span>密码</span>
+          <input type="password" name="password" autocomplete="current-password" placeholder="至少 8 位">
+        </label>
+        <label class="field" data-gate-confirm hidden>
+          <span>确认密码</span>
+          <input type="password" name="confirm" autocomplete="new-password" placeholder="再输入一次">
+        </label>
+        <p class="adm-err" data-gate-err hidden></p>
+        <button type="submit" class="btn primary gate-btn" data-gate-submit>进入后台</button>
+      </form>
+
+      <p class="gate-hint" data-gate-hint>首次使用需要创建管理员账号，账号保存在本机浏览器。</p>
+      <a class="gate-back" href="./">← 返回店铺</a>
+    </div>
   </div>
 
   <div class="adm-scrim" data-scrim hidden></div>
@@ -230,6 +297,7 @@
 
   <div class="adm-toast" data-toast hidden></div>
 
+  <script src="assets/js/auth.js"></script>
   <script src="assets/js/admin.js"></script>
 </body>
 </html>

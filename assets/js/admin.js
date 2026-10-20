@@ -39,7 +39,20 @@
     editorTitle: $("[data-editor-title]"),
     skus: $("[data-skus]"),
     coverPreview: $("[data-cover-preview]"),
-    coverEmpty: $("[data-cover-empty]")
+    coverEmpty: $("[data-cover-empty]"),
+    app: $(".adm"),
+    gate: $("[data-gate]"),
+    gateForm: $("[data-gate-form]"),
+    gateTitle: $("[data-gate-title]"),
+    gateSub: $("[data-gate-sub]"),
+    gateConfirm: $("[data-gate-confirm]"),
+    gateErr: $("[data-gate-err]"),
+    gateSubmit: $("[data-gate-submit]"),
+    gateHint: $("[data-gate-hint]"),
+    adminName: $("[data-admin-name]"),
+    userRows: $("[data-user-rows]"),
+    usersEmpty: $("[data-users-empty]"),
+    userTotal: $("[data-user-total]")
   };
 
   const state = {
@@ -50,6 +63,7 @@
     editorIndex: -1,
     editing: null,
     pendingDelete: null,
+    pendingUserDelete: null,
     busy: false,
     keyword: "",
     cat: "all",
@@ -72,6 +86,12 @@
   function today() {
     const d = new Date();
     return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+  }
+
+  function formatTime(iso) {
+    if (!iso) return "—";
+    const date = new Date(iso);
+    return Number.isNaN(date.getTime()) ? "—" : date.toLocaleString("zh-CN", { hour12: false });
   }
 
   function b64(str) {
@@ -300,6 +320,43 @@
     renderFilter();
     renderRows();
     renderSettings();
+    renderUsers();
+  }
+
+  function renderUsers() {
+    const users = Auth.list();
+    const me = Auth.session();
+
+    els.userRows.innerHTML = users.map((user) => {
+      const isAdmin = user.role === "admin";
+      const off = user.status === "disabled";
+      const pending = state.pendingUserDelete === user.id;
+      let actions;
+
+      if (isAdmin) {
+        actions = `<span class="urow-self">${me && me.uid === user.id ? "当前登录" : "受保护"}</span>`;
+      } else if (pending) {
+        actions = `<button type="button" class="text-act danger" data-user-del-confirm="${user.id}">确认删除</button>
+          <button type="button" class="text-act" data-user-del-cancel>取消</button>`;
+      } else {
+        actions = `${off
+          ? `<button type="button" class="text-act" data-user-enable="${user.id}">启用</button>`
+          : `<button type="button" class="text-act" data-user-disable="${user.id}">停用</button>`}
+          <button type="button" class="text-act danger" data-user-del="${user.id}">删除</button>`;
+      }
+
+      return `
+        <div class="urow" data-uid="${esc(user.id)}">
+          <div class="urow-name"><b>${esc(user.username)}</b>${isAdmin ? '<span class="badge">管理员</span>' : ""}</div>
+          <div class="urow-nick">${esc(user.nickname || "—")}</div>
+          <div class="urow-time">${esc(formatTime(user.createdAt))}</div>
+          <div class="urow-status${off ? " is-off" : ""}">${off ? "已停用" : "正常"}</div>
+          <div class="urow-act">${actions}</div>
+        </div>`;
+    }).join("");
+
+    els.userTotal.textContent = String(users.length);
+    els.usersEmpty.hidden = users.length > 0;
   }
 
   /* Editor ----------------------------------------------------------------- */
@@ -729,6 +786,58 @@
       if (!els.auth.hidden) closeAuth();
       else if (!els.editor.hidden) closeEditor();
     });
+
+    els.gateForm.addEventListener("submit", submitGate);
+
+    $("[data-logout]").addEventListener("click", () => {
+      Auth.logout();
+      window.location.reload();
+    });
+
+    $("[data-refresh-users]").addEventListener("click", () => {
+      renderUsers();
+      toast("会员列表已刷新");
+    });
+
+    els.userRows.addEventListener("click", (event) => {
+      const disable = event.target.closest("[data-user-disable]");
+      const enable = event.target.closest("[data-user-enable]");
+      const remove = event.target.closest("[data-user-del]");
+      const confirmRemove = event.target.closest("[data-user-del-confirm]");
+
+      try {
+        if (disable) {
+          Auth.setStatus(disable.dataset.userDisable, "disabled");
+          renderUsers();
+          toast("账号已停用");
+          return;
+        }
+        if (enable) {
+          Auth.setStatus(enable.dataset.userEnable, "active");
+          renderUsers();
+          toast("账号已启用");
+          return;
+        }
+        if (remove) {
+          state.pendingUserDelete = remove.dataset.userDel;
+          renderUsers();
+          return;
+        }
+        if (confirmRemove) {
+          Auth.remove(confirmRemove.dataset.userDelConfirm);
+          state.pendingUserDelete = null;
+          renderUsers();
+          toast("账号已删除");
+          return;
+        }
+        if (event.target.closest("[data-user-del-cancel]")) {
+          state.pendingUserDelete = null;
+          renderUsers();
+        }
+      } catch (err) {
+        toast(err.message || "操作失败", true);
+      }
+    });
   }
 
   function restoreDraft() {
@@ -771,8 +880,81 @@
 
   /* Boot ------------------------------------------------------------------- */
 
-  async function boot() {
-    bind();
+  let gateInit = false;
+  let started = false;
+
+  function showGate() {
+    els.app.hidden = true;
+    els.gate.hidden = false;
+    gateInit = !Auth.hasAdmin();
+    els.gateTitle.textContent = gateInit ? "创建管理员账号" : "管理员登录";
+    els.gateSub.textContent = gateInit ? "第一次使用，先设置这个后台的管理员账号" : "使用管理员账号进入后台";
+    els.gateConfirm.hidden = !gateInit;
+    els.gateSubmit.textContent = gateInit ? "创建并进入" : "进入后台";
+    els.gateHint.textContent = gateInit
+      ? "账号保存在本机浏览器，请牢记密码，后台不提供找回。"
+      : "管理员账号保存在本机浏览器，换设备需要重新创建。";
+    els.gateForm.reset();
+    els.gateErr.hidden = true;
+    $("[name='username']", els.gateForm).focus();
+  }
+
+  function gateError(message) {
+    els.gateErr.textContent = message;
+    els.gateErr.hidden = false;
+  }
+
+  function submitGate(event) {
+    event.preventDefault();
+    els.gateErr.hidden = true;
+
+    const data = new FormData(els.gateForm);
+    const username = String(data.get("username") || "").trim();
+    const password = String(data.get("password") || "");
+    const confirm = String(data.get("confirm") || "");
+
+    if (!username || !password) {
+      gateError("请填写账号和密码");
+      return;
+    }
+    if (gateInit && password !== confirm) {
+      gateError("两次输入的密码不一致");
+      return;
+    }
+
+    els.gateSubmit.disabled = true;
+    try {
+      const session = gateInit
+        ? Auth.createAdmin({ username, password })
+        : Auth.login(username, password, true);
+
+      if (session.role !== "admin") {
+        Auth.logout();
+        throw new Error("该账号不是管理员");
+      }
+      startConsole(session);
+    } catch (err) {
+      gateError(err.message || "登录失败");
+    } finally {
+      els.gateSubmit.disabled = false;
+    }
+  }
+
+  async function startConsole(session) {
+    els.gate.hidden = true;
+    els.app.hidden = false;
+
+    if (els.adminName) {
+      els.adminName.textContent = session.nickname || session.username;
+      els.adminName.hidden = false;
+    }
+
+    if (started) {
+      renderUsers();
+      return;
+    }
+    started = true;
+
     try {
       await loadData();
     } catch (err) {
@@ -795,6 +977,16 @@
         localStorage.removeItem(LS_TOKEN);
       }
     }
+  }
+
+  async function boot() {
+    bind();
+    const session = Auth.session();
+    if (!session || session.role !== "admin") {
+      showGate();
+      return;
+    }
+    await startConsole(session);
   }
 
   boot();
