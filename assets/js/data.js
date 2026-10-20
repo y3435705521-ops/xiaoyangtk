@@ -35,7 +35,7 @@ window.SHOP = {
       "mark": "",
       "name": "TK",
       "sub": "测试",
-      "price": 1,
+      "price": null,
       "stock": {
         "level": "high",
         "text": "库存充足"
@@ -47,7 +47,7 @@ window.SHOP = {
       "skus": [
         {
           "name": "默认规格",
-          "price": 1,
+          "price": 0,
           "hint": ""
         }
       ],
