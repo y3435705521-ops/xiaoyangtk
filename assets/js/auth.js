@@ -349,6 +349,12 @@
       }
     },
 
+    /** 导出本机账号备份（仅本机文件模式） */
+    async backupAccounts() {
+      if ((await detectMode()) !== "remote") return null;
+      return api("/api/backup");
+    },
+
     /* 注册只能产生普通会员，管理员账号固定为内置店主账号，无法通过这里创建 */
     async register({ username, password, nickname }) {
       const name = String(username || "").trim();

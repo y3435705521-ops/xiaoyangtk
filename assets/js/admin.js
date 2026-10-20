@@ -959,6 +959,27 @@
       toast("会员列表已刷新");
     });
 
+    $("[data-backup-users]").addEventListener("click", async () => {
+      try {
+        const data = await Auth.backupAccounts();
+        if (!data) {
+          toast("账号备份只在「本机文件」模式下可用（先启动本地服务）", true);
+          return;
+        }
+        const stamp = new Date().toISOString().slice(0, 19).replace(/[:T]/g, "-");
+        const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement("a");
+        link.href = url;
+        link.download = `accounts-backup-${stamp}.json`;
+        link.click();
+        URL.revokeObjectURL(url);
+        toast("账号备份已导出");
+      } catch (err) {
+        toast(`导出失败：${err.message}`, true);
+      }
+    });
+
     if (els.retryBuild) {
       els.retryBuild.addEventListener("click", async () => {
         if (!state.token) {

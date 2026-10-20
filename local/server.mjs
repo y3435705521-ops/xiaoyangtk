@@ -321,6 +321,21 @@ async function handleApi(req, res, url) {
     return true;
   }
 
+  /* 账号数据备份：导出完整记录（含密码派生值，可原样恢复） */
+  if (route === "/api/backup" && method === "GET") {
+    const found = authUser(req);
+    if (!found || found.user.id !== OWNER_ID) {
+      sendJson(res, 403, { error: "该账号没有后台权限" });
+      return true;
+    }
+    sendJson(res, 200, {
+      version: db.version || 1,
+      exportedAt: new Date().toISOString(),
+      accounts: db.users
+    });
+    return true;
+  }
+
   const patch = route.match(/^\/api\/users\/([^/]+)$/);
   if (patch && (method === "PATCH" || method === "DELETE")) {
     const found = authUser(req);
