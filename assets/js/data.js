@@ -35,7 +35,7 @@ window.SHOP = {
       "mark": "",
       "name": "TK",
       "sub": "测试",
-      "price": null,
+      "price": 1,
       "stock": {
         "level": "high",
         "text": "库存充足"
@@ -47,7 +47,35 @@ window.SHOP = {
       "skus": [
         {
           "name": "默认规格",
-          "price": 0,
+          "price": 1,
+          "hint": ""
+        }
+      ],
+      "highlights": [],
+      "notes": [],
+      "cover": ""
+    },
+    {
+      "id": "807537",
+      "cat": "gpt",
+      "brand": "",
+      "brandSub": "",
+      "mark": "",
+      "name": "TK1",
+      "sub": "1",
+      "price": 1,
+      "stock": {
+        "level": "high",
+        "text": "库存充足"
+      },
+      "sold": 0,
+      "featured": 2,
+      "tags": [],
+      "skuLabel": "商品规格",
+      "skus": [
+        {
+          "name": "默认规格",
+          "price": 1,
           "hint": ""
         }
       ],
