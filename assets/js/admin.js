@@ -736,6 +736,9 @@
       clearDraft();
       els.banner.hidden = true;
       toast(`已发布 · ${res.commit.sha.slice(0, 7)}`);
+      if (window.Auth && Auth.pushShopData) {
+        Auth.pushShopData(content).catch(() => {});
+      }
       renderSettings();
       pollBuild();
     } catch (err) {

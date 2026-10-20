@@ -2,6 +2,17 @@
   "use strict";
 
   const SHOP = window.SHOP;
+
+  if (!SHOP || !Array.isArray(SHOP.products)) {
+    const grid = document.querySelector("[data-product-grid]");
+    if (grid) {
+      grid.innerHTML = '<div class="table-empty"><p class="table-empty-title">商品数据加载失败</p><p class="table-empty-sub">请刷新页面重试，仍有问题请联系客服。</p></div>';
+    }
+    const stat = document.querySelector("[data-stat-count]");
+    if (stat) stat.textContent = "0";
+    return;
+  }
+
   const CART_KEY = "xiaoyang_shop_cart_v1";
   const LAST_ORDER_KEY = "xiaoyang_shop_last_order_v1";
 
@@ -809,6 +820,15 @@
     }
     if (event.target.closest("[data-copy-order]")) {
       copyOrder();
+    }
+    if (event.target.closest("[data-send-order]")) {
+      copyOrder().then(() => {
+        window.open(
+          "https://wpa.qq.com/msgrd?v=3&uin=3435705521&site=qq&menu=yes",
+          "_blank",
+          "noopener"
+        );
+      });
     }
   });
 

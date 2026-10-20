@@ -338,6 +338,17 @@
       return healthInfo;
     },
 
+    /** 把最新商品数据同步到本机服务（服务未运行时静默跳过） */
+    async pushShopData(content) {
+      if ((await detectMode()) !== "remote") return false;
+      try {
+        await api("/api/shop-data", { method: "POST", body: { content } });
+        return true;
+      } catch (e) {
+        return false;
+      }
+    },
+
     /* 注册只能产生普通会员，管理员账号固定为内置店主账号，无法通过这里创建 */
     async register({ username, password, nickname }) {
       const name = String(username || "").trim();

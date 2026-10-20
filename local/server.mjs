@@ -301,6 +301,26 @@ async function handleApi(req, res, url) {
     return true;
   }
 
+  /* 后台发布后，把最新 data.js 同步到本地站点，避免本地预览和线上不一致 */
+  if (route === "/api/shop-data" && method === "POST") {
+    const found = authUser(req);
+    if (!found || found.user.id !== OWNER_ID) {
+      sendJson(res, 403, { error: "该账号没有后台权限" });
+      return true;
+    }
+    const body = await readBody(req);
+    const content = String(body.content || "");
+    if (!content.trim().startsWith("window.SHOP")) {
+      sendJson(res, 400, { error: "内容格式不正确" });
+      return true;
+    }
+    const target = path.join(SITE_ROOT, "assets", "js", "data.js");
+    fs.writeFileSync(`${target}.tmp`, content, "utf8");
+    fs.renameSync(`${target}.tmp`, target);
+    sendJson(res, 200, { ok: true });
+    return true;
+  }
+
   const patch = route.match(/^\/api\/users\/([^/]+)$/);
   if (patch && (method === "PATCH" || method === "DELETE")) {
     const found = authUser(req);
