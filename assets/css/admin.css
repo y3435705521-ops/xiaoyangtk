@@ -264,6 +264,10 @@ button {
   box-shadow: var(--shadow);
 }
 
+.adm-card-gap {
+  margin-top: 16px;
+}
+
 .adm-toolbar {
   display: flex;
   align-items: center;

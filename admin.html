@@ -6,7 +6,7 @@
   <meta name="robots" content="noindex, nofollow">
   <title>管理后台 · 小杨TK</title>
   <link rel="icon" href="assets/img/favicon.svg" type="image/svg+xml">
-  <link rel="stylesheet" href="assets/css/admin.css?v=20261020t">
+  <link rel="stylesheet" href="assets/css/admin.css?v=20261020u">
 </head>
 <body>
   <div class="adm">
@@ -105,7 +105,26 @@
             <input type="text" data-set="hours" placeholder="10:00 – 24:00">
           </label>
         </div>
-        <p class="adm-hint">分类是固定结构（GPT / Claude / Grok），如需增删分类告诉我改代码。</p>
+        <p class="adm-hint">分类在「分类管理」里增删改，改完记得保存并发布。</p>
+      </div>
+
+      <div class="adm-card adm-card-gap">
+        <h2 class="adm-h2">进店公告</h2>
+        <p class="adm-hint">顾客进店时会自动弹出这条公告；内容只有你能修改，改完需要「保存并发布」。</p>
+        <div class="form-grid">
+          <label class="field span2">
+            <span>公告标题</span>
+            <input type="text" data-set="noticeTitle" placeholder="进店必读">
+          </label>
+          <label class="field span2">
+            <span>公告内容</span>
+            <textarea class="area" rows="6" data-set="noticeBody" placeholder="写在这里的内容会原样展示给顾客"></textarea>
+          </label>
+          <label class="check span2">
+            <input type="checkbox" data-set="noticeEnabled">
+            <span>进店自动弹出（关闭后只能点顶部「公告」查看）</span>
+          </label>
+        </div>
       </div>
     </section>
 
@@ -349,7 +368,7 @@
 
   <div class="adm-toast" data-toast hidden></div>
 
-  <script src="assets/js/auth.js?v=20261020t"></script>
-  <script src="assets/js/admin.js?v=20261020t"></script>
+  <script src="assets/js/auth.js?v=20261020u"></script>
+  <script src="assets/js/admin.js?v=20261020u"></script>
 </body>
 </html>

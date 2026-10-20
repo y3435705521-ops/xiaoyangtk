@@ -357,6 +357,53 @@
     return AVATAR_COLORS[hash % AVATAR_COLORS.length];
   }
 
+  /* 进店公告（内容由店主在后台修改） ------------------------------------- */
+
+  const NOTICE_KEY = "xiaoyang_notice_seen_v1";
+
+  function noticeMeta() {
+    const notice = SHOP.notice || {};
+    const body = String(notice.body || "");
+    return {
+      enabled: notice.enabled !== false,
+      title: notice.title || "店铺公告",
+      body,
+      version: `${notice.updatedAt || ""}|${notice.title || ""}|${body.length}`
+    };
+  }
+
+  function openNotice() {
+    const modal = $("[data-notice-modal]");
+    if (!modal) return;
+    const notice = noticeMeta();
+    if (!notice.body && !notice.title) return;
+    $("[data-notice-title]").textContent = notice.title;
+    $("[data-notice-body]").textContent = notice.body;
+    modal.hidden = false;
+    document.body.classList.add("no-scroll");
+  }
+
+  function closeNotice() {
+    const modal = $("[data-notice-modal]");
+    if (!modal) return;
+    modal.hidden = true;
+    document.body.classList.remove("no-scroll");
+    try {
+      localStorage.setItem(NOTICE_KEY, noticeMeta().version);
+    } catch (e) { /* ignore */ }
+  }
+
+  function maybeShowNotice() {
+    const notice = noticeMeta();
+    if (!notice.enabled || !notice.body) return;
+    let seen = "";
+    try {
+      seen = localStorage.getItem(NOTICE_KEY) || "";
+    } catch (e) { /* ignore */ }
+    if (seen === notice.version) return;
+    window.setTimeout(openNotice, 700);
+  }
+
   function setCategory(categoryId, scroll = false) {
     state.category = categoryId;
     renderTabs();
@@ -862,10 +909,28 @@
     toggleMenu(false);
   });
 
-  $(".search-jump").addEventListener("click", () => {
-    $("#catalog").scrollIntoView({ behavior: "smooth", block: "start" });
-    setTimeout(() => els.search.focus({ preventScroll: true }), 450);
+  document.addEventListener("click", (event) => {
+    if (event.target.closest("[data-open-notice]")) {
+      event.preventDefault();
+      openNotice();
+      toggleMenu(false);
+      return;
+    }
+    if (event.target.closest("[data-notice-close]")) {
+      closeNotice();
+      return;
+    }
+    const modal = $("[data-notice-modal]");
+    if (modal && !modal.hidden && event.target === modal) closeNotice();
   });
+
+  const searchJump = $(".search-jump");
+  if (searchJump) {
+    searchJump.addEventListener("click", () => {
+      $("#catalog").scrollIntoView({ behavior: "smooth", block: "start" });
+      setTimeout(() => els.search.focus({ preventScroll: true }), 450);
+    });
+  }
 
   const receiptRows = $("[data-receipt-rows]");
   if (receiptRows) {
@@ -981,7 +1046,9 @@
 
   document.addEventListener("keydown", (event) => {
     if (event.key === "Escape") {
-      if (!els.productModal.hidden) closeProduct();
+      const noticeModal = $("[data-notice-modal]");
+      if (noticeModal && !noticeModal.hidden) closeNotice();
+      else if (!els.productModal.hidden) closeProduct();
       else if (els.cartDrawer.classList.contains("is-open")) closeCart();
       else if (!els.mobileMenu.hidden) toggleMenu(false);
     }
@@ -1046,6 +1113,9 @@
 
     const menuLabel = $("[data-account-menu-label]");
     if (menuLabel) menuLabel.textContent = session ? displayName : "登录 / 注册";
+
+    const registerJump = $("[data-register-jump]");
+    if (registerJump) registerJump.hidden = !!session;
   }
 
   // Boot -------------------------------------------------------------------
@@ -1058,4 +1128,5 @@
   renderAdminEntry();
   renderCart();
   updateNavState();
+  maybeShowNotice();
 })();

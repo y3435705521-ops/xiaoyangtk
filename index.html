@@ -14,7 +14,7 @@
   <meta property="og:image" content="https://www.xiaoyangtk.xin/assets/img/og-cover.png">
   <meta name="twitter:card" content="summary_large_image">
   <link rel="icon" href="assets/img/favicon.svg" type="image/svg+xml">
-  <link rel="stylesheet" href="assets/css/style.css?v=20261020t">
+  <link rel="stylesheet" href="assets/css/style.css?v=20261020u">
 </head>
 <body>
   <svg class="svg-sprite" aria-hidden="true">
@@ -73,68 +73,87 @@
       <circle cx="12" cy="8.6" r="3.5" fill="none" stroke="currentColor" stroke-width="1.7"/>
       <path d="M5 20c.9-3.5 3.7-5.3 7-5.3s6.1 1.8 7 5.3" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/>
     </symbol>
+    <symbol id="i-folder" viewBox="0 0 24 24">
+      <path d="M3.5 7.5a2 2 0 0 1 2-2h3.2l1.8 2h8a2 2 0 0 1 2 2v7.5a2 2 0 0 1-2 2h-13a2 2 0 0 1-2-2Z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/>
+    </symbol>
+    <symbol id="i-help" viewBox="0 0 24 24">
+      <circle cx="12" cy="12" r="8.5" fill="none" stroke="currentColor" stroke-width="1.6"/>
+      <path d="M9.7 9.3a2.4 2.4 0 1 1 3.4 2.2c-.7.4-1.1.9-1.1 1.7v.3" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+      <circle cx="12" cy="16.6" r="0.9" fill="currentColor"/>
+    </symbol>
+    <symbol id="i-mega" viewBox="0 0 24 24">
+      <path d="M4 10v4a2 2 0 0 0 2 2h2l7 3V5L8 8H6a2 2 0 0 0-2 2Z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/>
+      <path d="M18.5 9.5a3.5 3.5 0 0 1 0 5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+    </symbol>
+    <symbol id="i-enter" viewBox="0 0 24 24">
+      <path d="M10 7V5.5A1.5 1.5 0 0 1 11.5 4h6A1.5 1.5 0 0 1 19 5.5v13a1.5 1.5 0 0 1-1.5 1.5h-6A1.5 1.5 0 0 1 10 18.5V17" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+      <path d="M4 12h9m-3-3 3 3-3 3" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+    </symbol>
+    <symbol id="i-user-plus" viewBox="0 0 24 24">
+      <circle cx="10" cy="8.5" r="3.4" fill="none" stroke="currentColor" stroke-width="1.6"/>
+      <path d="M3.6 20c.8-3.3 3.4-5 6.4-5s5.6 1.7 6.4 5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+      <path d="M18 7v4m-2-2h4" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+    </symbol>
   </svg>
 
-  <div class="ticker" aria-label="店铺公告">
-    <div class="ticker-track">
-      <span>仅面向海外用户与留学生 · 境外学习 / 工作场景</span><i>◆</i>
-      <span>全部商品卡密自动发货，24 小时秒发</span><i>◆</i>
-      <span>未使用卡密 24 小时内可申请退款</span><i>◆</i>
-      <span data-shop-ticker>在线客服 10:00 – 24:00 · QQ 3435705521</span><i>◆</i>
-      <span aria-hidden="true">仅面向海外用户与留学生 · 境外学习 / 工作场景</span><i aria-hidden="true">◆</i>
-      <span aria-hidden="true">全部商品卡密自动发货，24 小时秒发</span><i aria-hidden="true">◆</i>
-      <span aria-hidden="true">未使用卡密 24 小时内可申请退款</span><i aria-hidden="true">◆</i>
-      <span aria-hidden="true" data-shop-ticker>在线客服 10:00 – 24:00 · QQ 3435705521</span><i aria-hidden="true">◆</i>
-    </div>
-  </div>
-
   <header class="site-header" id="top">
-    <div class="shell header-inner">
-      <a class="brand" href="#top" aria-label="小杨TK首页">
-        <span class="brand-seal">杨</span>
-        <span class="brand-word">
-          <strong>小杨TK</strong>
-          <small>XIAOYANG TK</small>
-        </span>
-      </a>
-
-      <nav class="main-nav" aria-label="主导航">
-        <a href="#catalog" class="is-current">逛小店</a>
-        <span class="nav-cats" data-nav-cats></span>
-        <a href="#service">服务说明</a>
-        <a href="#faq">买前必读</a>
-      </nav>
-
-      <div class="header-actions">
-        <a class="plain-btn account-jump" href="account.html" aria-label="登录 / 注册" data-account-jump>
-          <span class="account-avatar" data-account-avatar hidden></span>
-          <svg class="icon" data-account-icon><use href="#i-user"/></svg>
-          <span data-account-label>登录</span>
+    <div class="shell">
+      <div class="header-inner">
+        <a class="brand" href="#top" aria-label="小杨TK首页">
+          <span class="brand-seal">杨</span>
+          <span class="brand-word">
+            <strong>小杨TK</strong>
+            <small>XIAOYANG TK</small>
+          </span>
         </a>
-        <a class="plain-btn admin-jump" href="admin.html" data-admin-jump hidden>
-          <svg class="icon"><use href="#i-shield"/></svg>
-          <span>管理后台</span>
-        </a>
-        <button class="plain-btn search-jump" type="button" aria-label="搜索商品">
-          <svg class="icon"><use href="#i-search"/></svg>
-          <span>搜索</span>
-        </button>
-        <button class="cart-btn" type="button" data-open-cart>
-          <svg class="icon"><use href="#i-bag"/></svg>
-          <span>购物袋</span>
-          <b class="cart-count" data-cart-count>0</b>
-        </button>
-        <button class="menu-btn" type="button" aria-label="打开菜单" aria-expanded="false" data-menu-toggle>
-          <svg class="icon"><use href="#i-menu"/></svg>
-        </button>
+
+        <nav class="main-nav" aria-label="主导航">
+          <a class="nav-item" href="#catalog">
+            <svg class="icon"><use href="#i-bag"/></svg><span>购物</span>
+          </a>
+          <a class="nav-item" href="account.html#orders">
+            <svg class="icon"><use href="#i-folder"/></svg><span>订单查询</span>
+          </a>
+          <a class="nav-item" href="#faq">
+            <svg class="icon"><use href="#i-help"/></svg><span>帮助中心</span>
+          </a>
+          <button class="nav-item" type="button" data-open-notice>
+            <svg class="icon"><use href="#i-mega"/></svg><span>公告</span>
+          </button>
+        </nav>
+
+        <div class="header-actions">
+          <a class="pill light account-jump" href="account.html" aria-label="登录 / 注册" data-account-jump>
+            <span class="account-avatar" data-account-avatar hidden></span>
+            <svg class="icon" data-account-icon><use href="#i-enter"/></svg>
+            <span data-account-label>登录</span>
+          </a>
+          <a class="pill dark register-jump" href="account.html?mode=register" data-register-jump>
+            <svg class="icon"><use href="#i-user-plus"/></svg>
+            <span>创建账号</span>
+          </a>
+          <a class="pill dark admin-jump" href="admin.html" data-admin-jump hidden>
+            <svg class="icon"><use href="#i-shield"/></svg>
+            <span>管理后台</span>
+          </a>
+          <button class="cart-btn" type="button" data-open-cart>
+            <svg class="icon"><use href="#i-bag"/></svg>
+            <span>购物袋</span>
+            <b class="cart-count" data-cart-count>0</b>
+          </button>
+          <button class="menu-btn" type="button" aria-label="打开菜单" aria-expanded="false" data-menu-toggle>
+            <svg class="icon"><use href="#i-menu"/></svg>
+          </button>
+        </div>
       </div>
     </div>
 
     <div class="mobile-menu" data-mobile-menu hidden>
-      <a href="#catalog">逛小店 <span>SHOP</span></a>
+      <a href="#catalog">购物 <span>SHOP</span></a>
+      <a href="account.html#orders">订单查询 <span>ORDERS</span></a>
+      <a href="#faq">帮助中心 <span>HELP</span></a>
+      <button type="button" data-open-notice>公告 <span>NOTICE</span></button>
       <span data-menu-cats></span>
-      <a href="#service">服务说明 <span>INFO</span></a>
-      <a href="#faq">买前必读 <span>FAQ</span></a>
       <a href="account.html"><span data-account-menu-label>登录 / 注册</span> <span>ACCOUNT</span></a>
       <a href="admin.html" data-admin-jump hidden>管理后台 <span>ADMIN</span></a>
       <p data-shop-contact>客服 QQ 3435705521 · 10:00–24:00</p>
@@ -405,6 +424,16 @@
     <span>在线客服</span>
   </a>
 
+  <div class="notice-modal" data-notice-modal hidden>
+    <div class="notice-card" role="dialog" aria-modal="true" aria-labelledby="notice-title">
+      <p class="notice-kicker">NOTICE / 店铺公告</p>
+      <h3 id="notice-title" data-notice-title>进店必读</h3>
+      <div class="notice-body" data-notice-body></div>
+      <button type="button" class="btn btn-primary btn-block" data-notice-close>我知道了</button>
+      <p class="notice-foot">本公告由店主发布，如有疑问请联系客服</p>
+    </div>
+  </div>
+
   <div class="scrim" data-scrim hidden></div>
 
   <aside class="cart-drawer" role="dialog" aria-modal="true" aria-hidden="true" aria-label="购物袋" tabindex="-1" data-cart-drawer inert>
@@ -495,7 +524,7 @@
 
   <div class="toast" role="status" aria-live="polite" data-toast></div>
 
-  <script src="assets/js/auth.js?v=20261020t"></script>
+  <script src="assets/js/auth.js?v=20261020u"></script>
   <script>
     // data.js 带时间戳加载，避免浏览器缓存导致"后台已发布、前台看不到"
     (function () {
@@ -503,12 +532,12 @@
       data.src = "assets/js/data.js?t=" + Date.now();
       data.onload = function () {
         var app = document.createElement("script");
-        app.src = "assets/js/app.js?v=20261020t";
+        app.src = "assets/js/app.js?v=20261020u";
         document.body.appendChild(app);
       };
       data.onerror = function () {
         var app = document.createElement("script");
-        app.src = "assets/js/app.js?v=20261020t";
+        app.src = "assets/js/app.js?v=20261020u";
         document.body.appendChild(app);
       };
       document.head.appendChild(data);

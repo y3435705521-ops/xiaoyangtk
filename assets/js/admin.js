@@ -277,6 +277,7 @@
     if (!Array.isArray(state.shop.products)) state.shop.products = [];
     state.shop.categories = state.shop.categories || [];
     state.shop.contact = state.shop.contact || { qq: "", hours: "" };
+    state.shop.notice = state.shop.notice || { enabled: true, title: "进店必读", body: "" };
   }
 
   async function reloadFromRepo() {
@@ -408,6 +409,11 @@
     $("[data-set='updated']").value = state.shop.updated || today();
     $("[data-set='qq']").value = (state.shop.contact && state.shop.contact.qq) || "";
     $("[data-set='hours']").value = (state.shop.contact && state.shop.contact.hours) || "";
+
+    const notice = state.shop.notice || {};
+    $("[data-set='noticeTitle']").value = notice.title || "";
+    $("[data-set='noticeBody']").value = notice.body || "";
+    $("[data-set='noticeEnabled']").checked = notice.enabled !== false;
   }
 
   function renderAll() {
@@ -1040,8 +1046,17 @@
     $$("[data-set]").forEach((input) => {
       input.addEventListener("change", () => {
         const key = input.dataset.set;
-        if (key === "updated") state.shop.updated = input.value;
-        else state.shop.contact[key] = input.value.trim();
+        if (key === "updated") {
+          state.shop.updated = input.value;
+        } else if (key === "noticeTitle") {
+          state.shop.notice.title = input.value.trim();
+        } else if (key === "noticeBody") {
+          state.shop.notice.body = input.value;
+        } else if (key === "noticeEnabled") {
+          state.shop.notice.enabled = input.checked;
+        } else {
+          state.shop.contact[key] = input.value.trim();
+        }
         markDirty();
       });
     });

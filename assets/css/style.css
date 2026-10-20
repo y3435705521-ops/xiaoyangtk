@@ -3918,6 +3918,314 @@ body {
   display: contents;
 }
 
+/* ==========================================================================
+   v3 — 胶囊式顶栏 + 进店公告
+   ========================================================================== */
+
+.site-header {
+  padding: 14px 0 8px;
+  background: transparent;
+  border: 0;
+  box-shadow: none;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  transition: none;
+}
+
+.site-header.is-scrolled {
+  background: transparent;
+  border: 0;
+  box-shadow: none;
+}
+
+.header-inner {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  height: 64px;
+  padding: 0 12px 0 10px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: #fff;
+  box-shadow: 0 18px 44px -36px rgba(16, 24, 40, 0.6);
+}
+
+.header-inner .brand {
+  gap: 10px;
+}
+
+.header-inner .brand-seal {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  font-size: 18px;
+  box-shadow: none;
+}
+
+.header-inner .brand-word strong {
+  font-size: 15px;
+  letter-spacing: 0.06em;
+}
+
+.header-inner .brand-word small {
+  font-size: 7.5px;
+}
+
+.main-nav {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  margin: 0 auto;
+}
+
+.main-nav .nav-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  height: 40px;
+  padding: 0 14px;
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  color: var(--muted);
+  font-size: 13.5px;
+  font-weight: 500;
+  white-space: nowrap;
+  transition: background 0.18s ease, color 0.18s ease;
+}
+
+.main-nav .nav-item::after {
+  display: none;
+}
+
+.main-nav .nav-item:hover {
+  background: #f3f4f6;
+  color: var(--ink);
+}
+
+.main-nav .nav-item .icon {
+  width: 16px;
+  height: 16px;
+  opacity: 0.85;
+}
+
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-left: 0;
+}
+
+.pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  height: 42px;
+  padding: 0 18px;
+  border-radius: 999px;
+  font-size: 13px;
+  font-weight: 600;
+  white-space: nowrap;
+  transition: background 0.18s ease, border-color 0.18s ease, color 0.18s ease;
+}
+
+.pill .icon {
+  width: 16px;
+  height: 16px;
+}
+
+.pill.light {
+  border: 1px solid var(--line);
+  background: #fff;
+  color: var(--ink-soft);
+}
+
+.pill.light:hover {
+  border-color: #c9ced6;
+  background: #fafbfc;
+}
+
+.pill.dark {
+  background: var(--ink);
+  color: #fff;
+}
+
+.pill.dark:hover {
+  background: #000;
+}
+
+.pill .account-avatar {
+  width: 24px;
+  height: 24px;
+  font-size: 11px;
+}
+
+.site-header .cart-btn {
+  height: 42px;
+  padding: 0 8px 0 16px;
+  font-size: 13px;
+}
+
+.notice-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 80;
+  display: grid;
+  place-items: center;
+  padding: 20px;
+  background: rgba(16, 24, 40, 0.42);
+  backdrop-filter: blur(3px);
+  -webkit-backdrop-filter: blur(3px);
+}
+
+.notice-card {
+  width: min(460px, 100%);
+  padding: 24px;
+  border-radius: 20px;
+  background: #fff;
+  box-shadow: 0 40px 90px -50px rgba(16, 24, 40, 0.85);
+}
+
+.notice-kicker {
+  margin: 0;
+  color: var(--faint);
+  font-family: var(--mono);
+  font-size: 9.5px;
+  letter-spacing: 0.18em;
+}
+
+.notice-card h3 {
+  margin: 8px 0 12px;
+  font-size: 20px;
+  letter-spacing: -0.01em;
+}
+
+.notice-body {
+  max-height: 50vh;
+  overflow-y: auto;
+  margin-bottom: 18px;
+  color: var(--ink-soft);
+  font-size: 13.5px;
+  line-height: 1.9;
+  white-space: pre-wrap;
+}
+
+.notice-card .btn {
+  height: 44px;
+}
+
+.notice-foot {
+  margin: 10px 0 0;
+  color: var(--faint);
+  font-size: 11px;
+  text-align: center;
+}
+
+.mobile-menu {
+  top: calc(100% - 4px);
+  right: 24px;
+  left: 24px;
+  padding: 8px 18px 16px;
+  border: 1px solid var(--line);
+  border-radius: 20px;
+  background: #fff;
+  box-shadow: 0 30px 60px -40px rgba(16, 24, 40, 0.55);
+}
+
+.mobile-menu a,
+.mobile-menu button {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: 13px 2px;
+  border: 0;
+  border-bottom: 1px solid var(--line);
+  background: none;
+  color: var(--ink);
+  font-size: 15px;
+  font-weight: 600;
+  text-align: left;
+}
+
+.mobile-menu a span,
+.mobile-menu button span {
+  color: var(--muted);
+  font-family: var(--mono);
+  font-size: 9px;
+  letter-spacing: 0.14em;
+}
+
+/* 保证 hidden 一定生效（.pill / .icon 等自带 display，会盖掉默认样式） */
+[hidden] {
+  display: none !important;
+}
+
+/* v3 顶栏的窄屏规则要放在最后，否则会被上面的 .main-nav 覆盖 */
+@media (max-width: 980px) {
+  .main-nav {
+    display: none;
+  }
+
+  .menu-btn {
+    display: grid;
+  }
+
+  .header-actions {
+    margin-left: auto;
+  }
+}
+
+@media (max-width: 620px) {
+  .header-inner {
+    height: 56px;
+    gap: 6px;
+    padding: 0 8px;
+  }
+
+  .header-inner .brand-seal {
+    width: 36px;
+    height: 36px;
+    font-size: 15px;
+  }
+
+  .header-inner .brand-word strong {
+    font-size: 13px;
+  }
+
+  .pill {
+    padding: 0 12px;
+  }
+
+  .pill > span:last-child {
+    display: none;
+  }
+
+  .site-header .cart-btn > span {
+    display: none;
+  }
+}
+
+@media (max-width: 620px) {
+  .header-inner {
+    height: 58px;
+    gap: 8px;
+    padding: 0 8px;
+  }
+
+  .pill {
+    padding: 0 12px;
+  }
+
+  .pill > span:last-child {
+    display: none;
+  }
+
+  .site-header .cart-btn > span {
+    display: none;
+  }
+}
+
 .account-avatar {
   display: grid;
   place-items: center;

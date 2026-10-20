@@ -286,7 +286,8 @@
     });
   }
 
-  setMode("login");
+  const query = new URLSearchParams(window.location.search);
+  setMode(query.get("mode") === "register" ? "register" : "login");
   render();
 
   (async () => {
