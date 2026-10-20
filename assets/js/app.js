@@ -87,8 +87,24 @@
   }
 
   function priceRange(product) {
-    const prices = product.skus.map((sku) => sku.price);
-    return { min: Math.min(...prices), max: Math.max(...prices) };
+    const prices = (product.skus || [])
+      .map((sku) => Number(sku.price))
+      .filter((n) => Number.isFinite(n) && n > 0);
+
+    if (prices.length) {
+      return { min: Math.min(...prices), max: Math.max(...prices) };
+    }
+
+    const fallback = Number(product.price);
+    if (Number.isFinite(fallback) && fallback > 0) {
+      return { min: fallback, max: fallback };
+    }
+    return { min: 0, max: 0 };
+  }
+
+  /** 没有有效价格的商品不放进店铺，避免出现 ¥0 商品 */
+  function isSellable(product) {
+    return priceRange(product).min > 0;
   }
 
   function loadCart() {
@@ -136,8 +152,9 @@
   }
 
   function renderTabs() {
-    const counts = { all: SHOP.products.length };
-    SHOP.products.forEach((product) => {
+    const sellable = SHOP.products.filter(isSellable);
+    const counts = { all: sellable.length };
+    sellable.forEach((product) => {
       counts[product.cat] = (counts[product.cat] || 0) + 1;
     });
 
@@ -164,6 +181,7 @@
   function filteredProducts() {
     const keyword = state.search.trim().toLowerCase();
     let items = SHOP.products.filter((product) => {
+      if (!isSellable(product)) return false;
       if (state.category !== "all" && product.cat !== state.category) return false;
       if (!keyword) return true;
       const haystack = [
@@ -201,7 +219,9 @@
       <article class="crow" data-cat="${product.cat}" data-product-id="${product.id}">
         <div class="crow-main">
           <span class="crow-thumb">
-            <img src="${esc(product.cover)}" alt="${esc(product.brand)} 标志" loading="lazy">
+            ${product.cover
+              ? `<img src="${esc(product.cover)}" alt="${esc(product.brand || product.name)} 标志" loading="lazy">`
+              : `<span class="thumb-mark">${esc(String(product.mark || product.brand || product.name || "?").slice(0, 3))}</span>`}
           </span>
           <div class="crow-info">
             <a class="crow-name" href="#product-${product.id}" data-open-product="${product.id}">${esc(product.name)}</a>
@@ -225,7 +245,7 @@
 
   function renderProducts() {
     const items = filteredProducts();
-    const catalogEmpty = SHOP.products.length === 0;
+    const catalogEmpty = !SHOP.products.some(isSellable);
 
     els.grid.innerHTML = items.map(productRow).join("");
     els.grid.hidden = items.length === 0;
@@ -242,13 +262,14 @@
 
   function renderOverview() {
     const countEl = $("[data-stat-count]");
-    if (countEl) countEl.textContent = String(SHOP.products.length);
+    if (countEl) countEl.textContent = String(SHOP.products.filter(isSellable).length);
 
     const rows = $("[data-receipt-rows]");
     const note = $("[data-receipt-note]");
     if (!rows) return;
 
     const top = SHOP.products
+      .filter(isSellable)
       .slice()
       .sort((a, b) => (a.featured || 99) - (b.featured || 99))
       .slice(0, 3);
@@ -303,7 +324,9 @@
         <span class="media-no">NO. ${String(index).padStart(2, "0")}</span>
         <span class="stock-chip ${stockClass}">${esc(product.stock.text)}</span>
       </div>
-      <div class="logo-tile"><img src="${product.cover}" alt="${esc(product.brand)} 标志"></div>
+      <div class="logo-tile">${product.cover
+        ? `<img src="${esc(product.cover)}" alt="${esc(product.brand || product.name)} 标志">`
+        : `<span class="tile-mark">${esc(String(product.mark || product.brand || product.name || "?").slice(0, 3))}</span>`}</div>
       <span class="media-tag">${esc(product.brand)} / ${esc(product.brandSub)}</span>
     `;
 

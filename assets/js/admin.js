@@ -40,6 +40,8 @@
     skus: $("[data-skus]"),
     coverPreview: $("[data-cover-preview]"),
     coverEmpty: $("[data-cover-empty]"),
+    uploadCover: $("[data-upload-cover]"),
+    coverFile: $("[data-cover-file]"),
     app: $(".adm"),
     gate: $("[data-gate]"),
     gateForm: $("[data-gate-form]"),
@@ -50,6 +52,7 @@
     gateSubmit: $("[data-gate-submit]"),
     gateHint: $("[data-gate-hint]"),
     adminName: $("[data-admin-name]"),
+    modeChip: $("[data-mode-chip]"),
     userRows: $("[data-user-rows]"),
     usersEmpty: $("[data-users-empty]"),
     userTotal: $("[data-user-total]")
@@ -58,6 +61,7 @@
   const state = {
     shop: null,
     remoteJson: "",
+    fileSha: null,
     token: "",
     dirty: false,
     editorIndex: -1,
@@ -99,6 +103,13 @@
     let bin = "";
     for (let i = 0; i < bytes.length; i += 1) bin += String.fromCharCode(bytes[i]);
     return btoa(bin);
+  }
+
+  function unb64(content) {
+    const bin = atob(String(content).replace(/\s/g, ""));
+    const bytes = new Uint8Array(bin.length);
+    for (let i = 0; i < bin.length; i += 1) bytes[i] = bin.charCodeAt(i);
+    return new TextDecoder().decode(bytes);
   }
 
   function toast(message, isError) {
@@ -201,14 +212,48 @@
   }
 
   async function loadData() {
+    // 已连接 GitHub 时以仓库中的文件为准，避免用本地旧数据覆盖线上
+    if (state.token) {
+      try {
+        const file = await gh(`/repos/${OWNER}/${REPO}/contents/${DATA_PATH}?ref=${BRANCH}`);
+        const text = unb64(file.content);
+        state.fileSha = file.sha;
+        state.shop = parseShop(text);
+        state.remoteJson = JSON.stringify(state.shop);
+        normalizeShop();
+        return;
+      } catch (err) {
+        if (err.status !== 404) throw err;
+        state.fileSha = null;
+      }
+    }
+
     const res = await fetch(`${DATA_PATH}?t=${Date.now()}`, { cache: "no-store" });
     if (!res.ok) throw new Error(`读取 data.js 失败（${res.status}）`);
     const text = await res.text();
     state.remoteJson = JSON.stringify(parseShop(text));
     state.shop = parseShop(text);
+    normalizeShop();
+  }
+
+  function normalizeShop() {
     if (!Array.isArray(state.shop.products)) state.shop.products = [];
     state.shop.categories = state.shop.categories || [];
     state.shop.contact = state.shop.contact || { qq: "", hours: "" };
+  }
+
+  async function reloadFromRepo() {
+    if (!state.token) return;
+    try {
+      state.fileSha = null;
+      await loadData();
+      state.dirty = false;
+      renderAll();
+      checkDraft();
+      toast("已读取仓库中的最新数据");
+    } catch (err) {
+      toast(`读取仓库数据失败：${err.message}`, true);
+    }
   }
 
   function markDirty() {
@@ -270,6 +315,7 @@
   function rowHtml(product) {
     const index = state.shop.products.indexOf(product);
     const price = priceOf(product);
+    const invalid = price <= 0;
     const stock = product.stock || { level: "high", text: "" };
     const stockClass = stock.level === "out" ? "is-out" : stock.level === "low" ? "is-low" : "";
     const cover = product.cover
@@ -282,7 +328,7 @@
         <div class="arow-main">
           <span class="thumb">${cover}</span>
           <div class="arow-name">
-            <b>${esc(product.name || "未命名商品")}</b>
+            <b>${esc(product.name || "未命名商品")}${invalid ? '<span class="warn-chip">缺价格</span>' : ""}</b>
             <span>${esc(product.sub || "")}</span>
           </div>
         </div>
@@ -460,6 +506,60 @@
     }
   }
 
+  async function uploadCover(file) {
+    if (!state.token) {
+      openAuth();
+      toast("先连接 GitHub 才能上传图片", true);
+      return;
+    }
+    if (file.size > 2 * 1024 * 1024) {
+      toast("图片请控制在 2MB 以内", true);
+      return;
+    }
+
+    const ext = (file.name.split(".").pop() || "").toLowerCase().replace("jpeg", "jpg");
+    if (!["png", "jpg", "webp"].includes(ext)) {
+      toast("只支持 PNG / JPG / WEBP", true);
+      return;
+    }
+
+    const base = state.editing && state.editing.id ? state.editing.id : "cover";
+    const target = `assets/img/products/${base}-${Date.now().toString(36)}.${ext}`;
+
+    els.uploadCover.disabled = true;
+    els.uploadCover.textContent = "上传中…";
+    try {
+      const buffer = new Uint8Array(await file.arrayBuffer());
+      let bin = "";
+      const chunk = 0x8000;
+      for (let i = 0; i < buffer.length; i += chunk) {
+        bin += String.fromCharCode.apply(null, buffer.subarray(i, i + chunk));
+      }
+      await gh(`/repos/${OWNER}/${REPO}/contents/${target}`, {
+        method: "PUT",
+        body: JSON.stringify({
+          message: `Upload cover ${target}`,
+          content: btoa(bin),
+          branch: BRANCH
+        })
+      });
+      $("[data-f='cover']").value = target;
+      if (state.editing) state.editing.cover = target;
+      updateCover();
+      toast("图片已上传，保存商品后生效");
+    } catch (err) {
+      const message = err.status === 403
+        ? "令牌没有写入权限（403）"
+        : err.status === 401
+          ? "令牌失效（401）"
+          : err.message;
+      toast(`上传失败：${message}`, true);
+    } finally {
+      els.uploadCover.disabled = false;
+      els.uploadCover.textContent = "上传图片";
+    }
+  }
+
   function collectSkus() {
     return $$(".sku-row", els.skus).map((row) => ({
       name: $("[data-sku-field='name']", row).value.trim(),
@@ -497,14 +597,26 @@
       toast("至少需要一个规格", true);
       return;
     }
-    if (p.price <= 0) {
-      p.price = Math.min(...p.skus.map((sku) => sku.price).filter((n) => n > 0)) || 0;
+    const validPrices = p.skus
+      .map((sku) => Number(sku.price))
+      .filter((n) => Number.isFinite(n) && n > 0);
+
+    if (!Number.isFinite(p.price) || p.price <= 0) {
+      p.price = validPrices.length ? Math.min(...validPrices) : 0;
     }
-    if (!p.price) {
-      toast("请填写价格", true);
+
+    if (!Number.isFinite(p.price) || p.price <= 0) {
+      toast("请填写有效价格（必须大于 0）", true);
       $("[data-f='price']").focus();
       return;
     }
+
+    p.skus = p.skus.map((sku) => ({
+      ...sku,
+      price: Number.isFinite(Number(sku.price)) && Number(sku.price) > 0
+        ? Number(sku.price)
+        : p.price
+    }));
 
     if (state.editorIndex >= 0) {
       state.shop.products[state.editorIndex] = p;
@@ -559,6 +671,7 @@
       }
       closeAuth();
       toast(`已连接 @${login}，可以发布了`);
+      await reloadFromRepo();
     } catch (err) {
       const message = err.status === 401
         ? "令牌无效或已过期（401）"
@@ -599,9 +712,9 @@
     els.build.textContent = "正在提交…";
 
     try {
-      state.shop.updated = today();
+      if (!state.shop.updated) state.shop.updated = today();
       const content = serializeShop(state.shop);
-      const sha = await fileSha();
+      const sha = state.fileSha || await fileSha();
       const body = {
         message: `Update catalog (${state.shop.products.length} products) via admin console`,
         content: b64(content),
@@ -615,6 +728,7 @@
       });
 
       state.dirty = false;
+      state.fileSha = res.content && res.content.sha ? res.content.sha : state.fileSha;
       state.remoteJson = JSON.stringify(state.shop);
       clearDraft();
       els.banner.hidden = true;
@@ -626,6 +740,8 @@
         ? "文件已在别处更新，刷新页面后重试（409）"
         : err.status === 401
           ? "令牌失效，请重新连接（401）"
+          : err.status === 403
+            ? "令牌没有写入权限（403）：请确认令牌对该仓库的 Contents 权限是 Read and write"
           : `发布失败：${err.message}`;
       toast(message, true);
       els.build.textContent = "提交失败";
@@ -749,6 +865,21 @@
     });
 
     $("[data-f='cover']").addEventListener("input", updateCover);
+
+    els.uploadCover.addEventListener("click", () => {
+      if (!state.token) {
+        openAuth();
+        toast("先连接 GitHub 才能上传图片", true);
+        return;
+      }
+      els.coverFile.click();
+    });
+
+    els.coverFile.addEventListener("change", () => {
+      const file = els.coverFile.files && els.coverFile.files[0];
+      if (file) uploadCover(file);
+      els.coverFile.value = "";
+    });
 
     $$("[data-set]").forEach((input) => {
       input.addEventListener("change", () => {
@@ -947,6 +1078,18 @@
     if (source && info && info.accountsFile) {
       source.textContent = `账号数据：${info.accountsFile}`;
     }
+    if (els.modeChip) {
+      if (info && info.accountsFile) {
+        els.modeChip.textContent = "本机文件";
+        els.modeChip.title = info.accountsFile;
+        els.modeChip.classList.add("is-file");
+      } else {
+        els.modeChip.textContent = "浏览器存储";
+        els.modeChip.title = "当前页面没有连接本地账号服务，账号数据存在浏览器中";
+        els.modeChip.classList.remove("is-file");
+      }
+      els.modeChip.hidden = false;
+    }
 
     if (els.adminName) {
       els.adminName.textContent = session.nickname || session.username;
@@ -975,6 +1118,7 @@
     if (saved) {
       try {
         await verifyToken(saved);
+        await reloadFromRepo();
       } catch (err) {
         state.token = "";
         setConnected(null);

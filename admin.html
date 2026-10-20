@@ -6,7 +6,7 @@
   <meta name="robots" content="noindex, nofollow">
   <title>管理后台 · 小杨TK</title>
   <link rel="icon" href="assets/img/favicon.svg" type="image/svg+xml">
-  <link rel="stylesheet" href="assets/css/admin.css?v=20261020g">
+  <link rel="stylesheet" href="assets/css/admin.css?v=20261020h">
 </head>
 <body>
   <div class="adm">
@@ -21,6 +21,7 @@
 
       <div class="adm-actions">
         <span class="adm-user" data-admin-name hidden></span>
+        <span class="mode-chip" data-mode-chip hidden></span>
         <span class="conn" data-conn>
           <i></i>
           <span data-conn-text>未连接 GitHub</span>
@@ -237,10 +238,14 @@
           <span>品牌副标</span>
           <input type="text" data-f="brandSub" placeholder="GPT">
         </label>
-        <label class="field span2">
-          <span>封面图片路径</span>
-          <input type="text" data-f="cover" placeholder="assets/img/products/51.png">
-        </label>
+        <div class="field span2">
+          <span>封面图片</span>
+          <div class="cover-row">
+            <input type="text" data-f="cover" placeholder="assets/img/products/51.png">
+            <button type="button" class="btn ghost small" data-upload-cover>上传图片</button>
+            <input type="file" accept="image/png,image/jpeg,image/webp" data-cover-file hidden>
+          </div>
+        </div>
         <div class="field span2 cover-preview">
           <img data-cover-preview alt="" hidden>
           <span data-cover-empty>暂无封面，会显示品牌字标占位</span>
@@ -297,7 +302,7 @@
 
   <div class="adm-toast" data-toast hidden></div>
 
-  <script src="assets/js/auth.js?v=20261020g"></script>
-  <script src="assets/js/admin.js?v=20261020g"></script>
+  <script src="assets/js/auth.js?v=20261020h"></script>
+  <script src="assets/js/admin.js?v=20261020h"></script>
 </body>
 </html>
