@@ -16,6 +16,7 @@
     name: $("[data-profile-name]"),
     user: $("[data-profile-user]"),
     role: $("[data-profile-role]"),
+    perm: $("[data-profile-perm]"),
     time: $("[data-profile-time]")
   };
 
@@ -61,6 +62,9 @@
       els.name.textContent = session.nickname || session.username;
       els.user.textContent = session.username;
       els.role.textContent = session.role === "admin" ? "管理员" : "普通会员";
+      els.perm.textContent = session.role === "admin"
+        ? "全站管理"
+        : "浏览商品 / 下单购买";
 
       const users = Auth.list();
       const me = users.find((user) => user.id === session.uid);

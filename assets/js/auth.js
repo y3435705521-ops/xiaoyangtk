@@ -225,35 +225,7 @@
   /* --- 对外 API ---------------------------------------------------------- */
 
   const Auth = {
-    hasAdmin() {
-      return readUsers().some((user) => user.role === "admin");
-    },
-
-    /** 创建第一个管理员账号 */
-    createAdmin({ username, password, nickname }) {
-      const name = String(username || "").trim();
-      checkUsername(name);
-      checkPassword(password);
-      const users = readUsers();
-      if (users.some((user) => normalize(user.username) === normalize(name))) {
-        throw new Error("该账号已存在");
-      }
-      const salt = newSalt();
-      const user = {
-        id: `u_${Date.now().toString(36)}`,
-        username: name,
-        nickname: (nickname || name).trim(),
-        role: "admin",
-        status: "active",
-        salt: toB64(salt),
-        hash: derive(password, salt),
-        createdAt: new Date().toISOString()
-      };
-      users.push(user);
-      writeUsers(users);
-      return makeSession(user, SESSION_TTL);
-    },
-
+    /* 注册只能产生普通会员，管理员账号固定为内置店主账号，无法通过这里创建 */
     register({ username, password, nickname }) {
       const name = String(username || "").trim();
       checkUsername(name);
