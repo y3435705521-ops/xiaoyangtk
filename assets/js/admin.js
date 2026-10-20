@@ -21,6 +21,21 @@
     return CAT_COLORS[Math.max(0, (index || 1) - 1) % CAT_COLORS.length];
   }
 
+  function avatarColor(name) {
+    const text = String(name || "");
+    let hash = 0;
+    for (let i = 0; i < text.length; i += 1) hash = (hash * 31 + text.charCodeAt(i)) >>> 0;
+    return CAT_COLORS[hash % CAT_COLORS.length];
+  }
+
+  function userAvatar(user) {
+    if (user.avatar) {
+      return `<span class="uavatar"><img src="${esc(user.avatar)}" alt=""></span>`;
+    }
+    const name = String(user.nickname || user.username || "?").trim();
+    return `<span class="uavatar" style="background:${avatarColor(user.username)}">${esc(name.slice(0, 1).toUpperCase())}</span>`;
+  }
+
   const els = {
     conn: $("[data-conn]"),
     connText: $("[data-conn-text]"),
@@ -521,7 +536,7 @@
 
       return `
         <div class="urow" data-uid="${esc(user.id)}">
-          <div class="urow-name"><b>${esc(user.username)}</b>${isAdmin ? '<span class="badge">管理员</span>' : ""}</div>
+          <div class="urow-name">${userAvatar(user)}<b>${esc(user.username)}</b>${isAdmin ? '<span class="badge">管理员</span>' : ""}</div>
           <div class="urow-nick">${esc(user.nickname || "—")}</div>
           <div class="urow-time">${esc(formatTime(user.createdAt))}</div>
           <div class="urow-status${off ? " is-off" : ""}">${off ? "已停用" : "正常"}</div>

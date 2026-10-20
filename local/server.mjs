@@ -143,7 +143,8 @@ function publicUser(user) {
     nickname: user.nickname || user.username,
     role: user.role,
     status: user.status,
-    createdAt: user.createdAt
+    createdAt: user.createdAt,
+    avatar: user.avatar || ""
   };
 }
 
@@ -154,6 +155,7 @@ function sessionOf(user, ttl) {
     nickname: user.nickname || user.username,
     role: user.role,
     createdAt: user.createdAt,
+    avatar: user.avatar || "",
     exp: Date.now() + ttl,
     owner: user.id === OWNER_ID
   };
@@ -355,6 +357,37 @@ async function handleApi(req, res, url) {
       version: db.version || 1,
       exportedAt: new Date().toISOString(),
       accounts: db.users
+    });
+    return true;
+  }
+
+  /* 修改自己的头像（登录用户可用） */
+  if (route === "/api/avatar" && method === "POST") {
+    const found = authUser(req);
+    if (!found) {
+      sendJson(res, 401, { error: "请先登录" });
+      return true;
+    }
+    const body = await readBody(req);
+    const avatar = String(body.avatar || "");
+
+    if (avatar) {
+      if (!/^data:image\/(png|jpeg|webp);base64,[A-Za-z0-9+/=]+$/.test(avatar)) {
+        sendJson(res, 400, { error: "头像格式不正确" });
+        return true;
+      }
+      if (avatar.length > 400000) {
+        sendJson(res, 400, { error: "头像太大，请重新选择" });
+        return true;
+      }
+      found.user.avatar = avatar;
+    } else {
+      delete found.user.avatar;
+    }
+    saveUsers();
+
+    sendJson(res, 200, {
+      session: { ...sessionOf(found.user, 0), exp: sessions[found.token].exp }
     });
     return true;
   }

@@ -206,7 +206,8 @@
       nickname: user.nickname || user.username,
       role: user.role,
       status: user.status,
-      createdAt: user.createdAt
+      createdAt: user.createdAt,
+      avatar: user.avatar || ""
     };
   }
 
@@ -217,6 +218,7 @@
       nickname: user.nickname || user.username,
       role: user.role,
       createdAt: user.createdAt,
+      avatar: user.avatar || "",
       exp: Date.now() + ttl
     };
     writeSession(session);
@@ -353,6 +355,32 @@
     async backupAccounts() {
       if ((await detectMode()) !== "remote") return null;
       return api("/api/backup");
+    },
+
+    /** 设置或清除自己的头像（dataURL，传空字符串表示清除） */
+    async setAvatar(dataUrl) {
+      const value = String(dataUrl || "");
+
+      if ((await detectMode()) === "remote") {
+        const data = await api("/api/avatar", { method: "POST", body: { avatar: value } });
+        if (data.session) writeRemoteSession(data.session);
+        return data.session || null;
+      }
+
+      const session = readSession();
+      if (!session) throw new Error("请先登录");
+
+      const users = readUsers();
+      const user = users.find((item) => item.id === session.uid);
+      if (!user) throw new Error("账号不存在");
+
+      if (value) user.avatar = value;
+      else delete user.avatar;
+      writeUsers(users);
+
+      const next = { ...session, avatar: value };
+      writeSession(next);
+      return next;
     },
 
     /* 注册只能产生普通会员，管理员账号固定为内置店主账号，无法通过这里创建 */

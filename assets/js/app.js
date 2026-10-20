@@ -70,6 +70,7 @@
 
   const CAT_MARK = { all: "全", gpt: "G", claude: "C", grok: "X" };
   const CAT_COLORS = ["#111418", "#d97757", "#23262c", "#3d6b8f", "#6b4f9e", "#2f6b4f", "#a8722a"];
+  const AVATAR_COLORS = ["#111418", "#d97757", "#23262c", "#3d6b8f", "#6b4f9e", "#2f6b4f", "#a8722a"];
   const STOCK_CLASS = { high: "", mid: "is-mid", low: "is-low", out: "is-out" };
 
   function esc(value) {
@@ -347,6 +348,13 @@
     $$("[data-shop-cats]").forEach((el) => {
       el.textContent = String(SHOP.categories.filter((cat) => cat.id !== "all").length);
     });
+  }
+
+  function avatarColor(name) {
+    const text = String(name || "");
+    let hash = 0;
+    for (let i = 0; i < text.length; i += 1) hash = (hash * 31 + text.charCodeAt(i)) >>> 0;
+    return AVATAR_COLORS[hash % AVATAR_COLORS.length];
   }
 
   function setCategory(categoryId, scroll = false) {
@@ -1011,8 +1019,29 @@
       el.hidden = !isOwner;
     });
 
-    const accountLabel = $("[data-account-jump] span");
-    if (accountLabel) accountLabel.textContent = session ? "我的账号" : "登录";
+    const avatarEl = $("[data-account-avatar]");
+    const iconEl = $("[data-account-icon]");
+    const labelEl = $("[data-account-label]");
+
+    if (avatarEl) {
+      if (session) {
+        if (session.avatar) {
+          avatarEl.innerHTML = `<img src="${esc(session.avatar)}" alt="">`;
+          avatarEl.style.background = "transparent";
+        } else {
+          const name = String(session.nickname || session.username || "?").trim();
+          avatarEl.textContent = name.slice(0, 1).toUpperCase();
+          avatarEl.style.background = avatarColor(session.username);
+        }
+        avatarEl.hidden = false;
+        if (iconEl) iconEl.hidden = true;
+      } else {
+        avatarEl.hidden = true;
+        avatarEl.textContent = "";
+        if (iconEl) iconEl.hidden = false;
+      }
+    }
+    if (labelEl) labelEl.textContent = session ? "我的账号" : "登录";
   }
 
   // Boot -------------------------------------------------------------------

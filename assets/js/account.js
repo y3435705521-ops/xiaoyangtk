@@ -22,6 +22,12 @@
     orders: $("[data-orders]"),
     orderList: $("[data-order-list]"),
     orderCount: $("[data-order-count]"),
+    avatarBox: $("[data-avatar]"),
+    avatarImg: $("[data-avatar-img]"),
+    avatarInitial: $("[data-avatar-initial]"),
+    avatarUpload: $("[data-avatar-upload]"),
+    avatarRemove: $("[data-avatar-remove]"),
+    avatarFile: $("[data-avatar-file]"),
     time: $("[data-profile-time]")
   };
 
@@ -32,6 +38,71 @@
     .replace(/</g, "&lt;")
     .replace(/>/g, "&gt;")
     .replace(/"/g, "&quot;");
+
+  const AVATAR_COLORS = ["#111418", "#d97757", "#23262c", "#3d6b8f", "#6b4f9e", "#2f6b4f", "#a8722a"];
+
+  function avatarInitial(user) {
+    const name = String(user.nickname || user.username || "?").trim();
+    return name.slice(0, 1).toUpperCase();
+  }
+
+  function avatarColor(name) {
+    const text = String(name || "");
+    let hash = 0;
+    for (let i = 0; i < text.length; i += 1) hash = (hash * 31 + text.charCodeAt(i)) >>> 0;
+    return AVATAR_COLORS[hash % AVATAR_COLORS.length];
+  }
+
+  function renderAvatar(session) {
+    if (!els.avatarBox) return;
+    if (session.avatar) {
+      els.avatarImg.src = session.avatar;
+      els.avatarImg.hidden = false;
+      els.avatarInitial.hidden = true;
+      els.avatarBox.style.background = "transparent";
+    } else {
+      els.avatarImg.hidden = true;
+      els.avatarImg.removeAttribute("src");
+      els.avatarInitial.hidden = false;
+      els.avatarInitial.textContent = avatarInitial(session);
+      els.avatarBox.style.background = avatarColor(session.username);
+    }
+    els.avatarRemove.hidden = !session.avatar;
+  }
+
+  /** 把选中的图片裁成 128×128 方形，避免头像过大 */
+  function fileToAvatar(file) {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onerror = () => reject(new Error("读取图片失败"));
+      reader.onload = () => {
+        const img = new Image();
+        img.onerror = () => reject(new Error("图片格式不支持"));
+        img.onload = () => {
+          const size = 128;
+          const canvas = document.createElement("canvas");
+          canvas.width = size;
+          canvas.height = size;
+          const ctx = canvas.getContext("2d");
+          const side = Math.min(img.width, img.height) || size;
+          ctx.drawImage(
+            img,
+            (img.width - side) / 2,
+            (img.height - side) / 2,
+            side,
+            side,
+            0,
+            0,
+            size,
+            size
+          );
+          resolve(canvas.toDataURL("image/jpeg", 0.85));
+        };
+        img.src = reader.result;
+      };
+      reader.readAsDataURL(file);
+    });
+  }
 
   function renderOrders() {
     let list = [];
@@ -117,6 +188,7 @@
       if (els.adminLink) els.adminLink.hidden = !(await Auth.isOwner(session));
 
       els.time.textContent = formatTime(session.createdAt);
+      renderAvatar(session);
       renderOrders();
       return;
     }
@@ -181,6 +253,38 @@
     setMode("login");
     await render();
   });
+
+  if (els.avatarUpload) {
+    els.avatarUpload.addEventListener("click", () => els.avatarFile.click());
+
+    els.avatarFile.addEventListener("change", async () => {
+      const file = els.avatarFile.files && els.avatarFile.files[0];
+      els.avatarFile.value = "";
+      if (!file) return;
+
+      if (file.size > 5 * 1024 * 1024) {
+        fail("图片请控制在 5MB 以内");
+        return;
+      }
+
+      try {
+        const dataUrl = await fileToAvatar(file);
+        await Auth.setAvatar(dataUrl);
+        await render();
+      } catch (err) {
+        fail(err.message || "头像更新失败");
+      }
+    });
+
+    els.avatarRemove.addEventListener("click", async () => {
+      try {
+        await Auth.setAvatar("");
+        await render();
+      } catch (err) {
+        fail(err.message || "头像移除失败");
+      }
+    });
+  }
 
   setMode("login");
   render();

@@ -6,7 +6,7 @@
   <meta name="robots" content="noindex">
   <title>登录 / 注册 · 小杨TK</title>
   <link rel="icon" href="assets/img/favicon.svg" type="image/svg+xml">
-  <link rel="stylesheet" href="assets/css/account.css?v=20261020q">
+  <link rel="stylesheet" href="assets/css/account.css?v=20261020r">
 </head>
 <body>
   <div class="acc">
@@ -66,6 +66,19 @@
       </section>
 
       <section class="acc-card acc-profile" data-profile hidden>
+        <div class="acc-avatar-row">
+          <span class="acc-avatar" data-avatar>
+            <img data-avatar-img alt="" hidden>
+            <span data-avatar-initial>?</span>
+          </span>
+          <div class="acc-avatar-meta">
+            <button type="button" class="btn ghost" data-avatar-upload>更换头像</button>
+            <button type="button" class="btn ghost" data-avatar-remove hidden>移除</button>
+            <small>默认用账号首字符，可上传 JPG / PNG</small>
+          </div>
+          <input type="file" accept="image/png,image/jpeg,image/webp" data-avatar-file hidden>
+        </div>
+
         <p class="kicker">MY ACCOUNT</p>
         <h2 data-profile-name>—</h2>
         <dl class="acc-facts">
@@ -96,7 +109,7 @@
     </main>
   </div>
 
-  <script src="assets/js/auth.js?v=20261020q"></script>
-  <script src="assets/js/account.js?v=20261020q"></script>
+  <script src="assets/js/auth.js?v=20261020r"></script>
+  <script src="assets/js/account.js?v=20261020r"></script>
 </body>
 </html>
