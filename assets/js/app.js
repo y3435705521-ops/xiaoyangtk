@@ -15,6 +15,7 @@
 
   const CART_KEY = "xiaoyang_shop_cart_v1";
   const LAST_ORDER_KEY = "xiaoyang_shop_last_order_v1";
+  const ORDERS_KEY = "xiaoyang_shop_orders_v1";
 
   const $ = (selector, scope = document) => scope.querySelector(selector);
   const $$ = (selector, scope = document) => Array.from(scope.querySelectorAll(selector));
@@ -604,6 +605,9 @@
 
     try {
       localStorage.setItem(LAST_ORDER_KEY, JSON.stringify(state.lastOrder));
+      const history = JSON.parse(localStorage.getItem(ORDERS_KEY) || "[]");
+      const next = [state.lastOrder, ...(Array.isArray(history) ? history : [])].slice(0, 30);
+      localStorage.setItem(ORDERS_KEY, JSON.stringify(next));
     } catch (error) {
       /* ignore */
     }

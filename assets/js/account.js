@@ -19,8 +19,55 @@
     perm: $("[data-profile-perm]"),
     adminLink: $("[data-goto-admin]"),
     hint: $("[data-acc-hint]"),
+    orders: $("[data-orders]"),
+    orderList: $("[data-order-list]"),
+    orderCount: $("[data-order-count]"),
     time: $("[data-profile-time]")
   };
+
+  const ORDER_KEY = "xiaoyang_shop_orders_v1";
+
+  const esc = (value) => String(value == null ? "" : value)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;");
+
+  function renderOrders() {
+    let list = [];
+    try {
+      list = JSON.parse(localStorage.getItem(ORDER_KEY) || "[]");
+    } catch (e) {
+      list = [];
+    }
+    if (!els.orders || !Array.isArray(list) || !list.length) {
+      if (els.orders) els.orders.hidden = true;
+      return;
+    }
+
+    els.orderList.innerHTML = list.slice(0, 6).map((order) => {
+      const items = Array.isArray(order.items) ? order.items : [];
+      const names = items.map((item) => `${esc(item.name)} × ${Number(item.qty) || 1}`).join("、");
+      const when = order.createdAt ? new Date(order.createdAt) : null;
+      const time = when && !Number.isNaN(when.getTime())
+        ? when.toLocaleString("zh-CN", { hour12: false })
+        : "—";
+      return `
+        <div class="acc-order">
+          <div class="acc-order-main">
+            <b>${esc(order.no || "—")}</b>
+            <span>${names || "—"}</span>
+          </div>
+          <div class="acc-order-side">
+            <strong>¥${esc(order.total)}</strong>
+            <small>${esc(time)}</small>
+          </div>
+        </div>`;
+    }).join("");
+
+    els.orderCount.textContent = String(list.length);
+    els.orders.hidden = false;
+  }
 
   let mode = "login";
 
@@ -70,11 +117,13 @@
       if (els.adminLink) els.adminLink.hidden = !(await Auth.isOwner(session));
 
       els.time.textContent = formatTime(session.createdAt);
+      renderOrders();
       return;
     }
 
     els.guest.hidden = false;
     els.profile.hidden = true;
+    if (els.orders) els.orders.hidden = true;
   }
 
   function submit(event) {
