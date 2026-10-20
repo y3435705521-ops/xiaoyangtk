@@ -2,8 +2,8 @@
   "use strict";
 
   const SHOP = window.SHOP;
-  const CART_KEY = "longniang_shop_cart_v1";
-  const LAST_ORDER_KEY = "longniang_shop_last_order_v1";
+  const CART_KEY = "xiaoyang_shop_cart_v1";
+  const LAST_ORDER_KEY = "xiaoyang_shop_last_order_v1";
 
   const $ = (selector, scope = document) => scope.querySelector(selector);
   const $$ = (selector, scope = document) => Array.from(scope.querySelectorAll(selector));
@@ -558,7 +558,7 @@
     if (!order) return "";
     const lines = order.items.map((item) => `${item.name} / ${item.sku} × ${item.qty}`).join("\n");
     return [
-      "龙娘小铺 · 订购单",
+      "小杨TK · 订购单",
       `订单号：${order.no}`,
       `称呼：${order.name}`,
       `联系方式：${order.contact}`,
