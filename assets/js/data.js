@@ -1,5 +1,5 @@
 window.SHOP = {
-  "updated": "2026-10-19",
+  "updated": "2026-10-20",
   "contact": {
     "qq": "3435705521",
     "hours": "10:00 – 24:00"
