@@ -17,6 +17,7 @@
     user: $("[data-profile-user]"),
     role: $("[data-profile-role]"),
     perm: $("[data-profile-perm]"),
+    adminLink: $("[data-goto-admin]"),
     time: $("[data-profile-time]")
   };
 
@@ -65,6 +66,7 @@
       els.perm.textContent = session.role === "admin"
         ? "全站管理"
         : "浏览商品 / 下单购买";
+      if (els.adminLink) els.adminLink.hidden = !Auth.isOwner(session);
 
       const users = Auth.list();
       const me = users.find((user) => user.id === session.uid);

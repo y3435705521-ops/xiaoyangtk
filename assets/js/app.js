@@ -876,11 +876,25 @@
     });
   }
 
+  function renderAdminEntry() {
+    if (!window.Auth) return;
+    const session = Auth.session();
+    const isOwner = session ? Auth.isOwner(session) : false;
+
+    $$("[data-admin-jump]").forEach((el) => {
+      el.hidden = !isOwner;
+    });
+
+    const accountLabel = $("[data-account-jump] span");
+    if (accountLabel) accountLabel.textContent = session ? "我的账号" : "登录";
+  }
+
   // Boot -------------------------------------------------------------------
 
   renderTabs();
   renderProducts();
   renderOverview();
+  renderAdminEntry();
   renderCart();
   updateNavState();
 })();

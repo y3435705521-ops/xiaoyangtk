@@ -108,9 +108,13 @@
       </nav>
 
       <div class="header-actions">
-        <a class="plain-btn account-jump" href="account.html" aria-label="登录 / 注册">
+        <a class="plain-btn account-jump" href="account.html" aria-label="登录 / 注册" data-account-jump>
           <svg class="icon"><use href="#i-user"/></svg>
           <span>登录</span>
+        </a>
+        <a class="plain-btn admin-jump" href="admin.html" data-admin-jump hidden>
+          <svg class="icon"><use href="#i-shield"/></svg>
+          <span>管理后台</span>
         </a>
         <button class="plain-btn search-jump" type="button" aria-label="搜索商品">
           <svg class="icon"><use href="#i-search"/></svg>
@@ -135,6 +139,7 @@
       <a href="#service">服务说明 <span>INFO</span></a>
       <a href="#faq">买前必读 <span>FAQ</span></a>
       <a href="account.html">登录 / 注册 <span>ACCOUNT</span></a>
+      <a href="admin.html" data-admin-jump hidden>管理后台 <span>ADMIN</span></a>
       <p>客服 QQ 3435705521 · 10:00–24:00</p>
     </div>
   </header>
@@ -491,7 +496,8 @@
 
   <div class="toast" role="status" aria-live="polite" data-toast></div>
 
-  <script src="assets/js/data.js?v=20261020c"></script>
-  <script src="assets/js/app.js?v=20261020c"></script>
+  <script src="assets/js/auth.js?v=20261020e"></script>
+  <script src="assets/js/data.js?v=20261020e"></script>
+  <script src="assets/js/app.js?v=20261020e"></script>
 </body>
 </html>
