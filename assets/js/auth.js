@@ -392,7 +392,18 @@
           writeRemoteSession(null);
           return null;
         }
-        return cached;
+        try {
+          const data = await api("/api/session");
+          if (!data.session) {
+            writeRemoteToken("");
+            writeRemoteSession(null);
+            return null;
+          }
+          writeRemoteSession(data.session);
+          return data.session;
+        } catch (e) {
+          return cached;
+        }
       }
 
       const session = readSession();
