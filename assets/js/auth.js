@@ -227,24 +227,48 @@
 
   const REMOTE_TOKEN_KEY = "xiaoyang_remote_token_v1";
   const REMOTE_SESSION_KEY = "xiaoyang_remote_session_v1";
+  const LOCAL_API = "http://127.0.0.1:8787";
   let modePromise = null;
   let healthInfo = null;
+  let apiBase = "";
+
+  async function probeService(base) {
+    try {
+      const controller = new AbortController();
+      const timer = window.setTimeout(() => controller.abort(), 1500);
+      const res = await fetch(`${base}/api/health`, {
+        cache: "no-store",
+        headers: { accept: "application/json" },
+        signal: controller.signal
+      });
+      window.clearTimeout(timer);
+      if (!res.ok) return null;
+      const data = await res.json();
+      return data && data.service === "xiaoyangtk-accounts" ? data : null;
+    } catch (e) {
+      return null;
+    }
+  }
 
   function detectMode() {
     if (!modePromise) {
       modePromise = (async () => {
-        try {
-          const res = await fetch("/api/health", {
-            cache: "no-store",
-            headers: { accept: "application/json" }
-          });
-          if (!res.ok) return "local";
-          const data = await res.json();
-          healthInfo = data;
-          return data && data.service === "xiaoyangtk-accounts" ? "remote" : "local";
-        } catch (e) {
-          return "local";
+        const same = await probeService("");
+        if (same) {
+          apiBase = "";
+          healthInfo = same;
+          return "remote";
         }
+
+        // 公网站点 + 本机服务：账号数据仍然写进这台电脑的文件
+        const local = await probeService(LOCAL_API);
+        if (local) {
+          apiBase = LOCAL_API;
+          healthInfo = local;
+          return "remote";
+        }
+
+        return "local";
       })();
     }
     return modePromise;
@@ -288,7 +312,7 @@
     if (token) headers.authorization = `Bearer ${token}`;
     if (opts.body) headers["content-type"] = "application/json";
 
-    const res = await fetch(path, {
+    const res = await fetch(apiBase + path, {
       method: opts.method || "GET",
       headers,
       body: opts.body ? JSON.stringify(opts.body) : undefined,

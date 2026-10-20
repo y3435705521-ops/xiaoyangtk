@@ -18,6 +18,14 @@ const ACCOUNTS_FILE = path.join(DATA_DIR, "accounts.json");
 const SESSIONS_FILE = path.join(DATA_DIR, "sessions.json");
 const PORT = Number(process.env.XIAOYANGTK_PORT || 8787);
 
+/* 允许公网站点直接调用本机服务（仅这几个来源） */
+const ALLOWED_ORIGINS = new Set([
+  "http://www.xiaoyangtk.xin",
+  "http://xiaoyangtk.xin",
+  `http://127.0.0.1:${PORT}`,
+  `http://localhost:${PORT}`
+]);
+
 const ROUNDS = 20000;
 const SESSION_TTL = 7 * 24 * 60 * 60 * 1000;
 const SHORT_TTL = 6 * 60 * 60 * 1000;
@@ -354,6 +362,23 @@ function serveStatic(req, res, url) {
 const server = http
   .createServer(async (req, res) => {
     const url = new URL(req.url || "/", `http://127.0.0.1:${PORT}`);
+    const origin = req.headers.origin;
+
+    if (origin && ALLOWED_ORIGINS.has(origin)) {
+      res.setHeader("access-control-allow-origin", origin);
+      res.setHeader("vary", "origin");
+    }
+    res.setHeader("access-control-allow-methods", "GET,POST,PATCH,DELETE,OPTIONS");
+    res.setHeader("access-control-allow-headers", "authorization,content-type,accept");
+    res.setHeader("access-control-allow-private-network", "true");
+    res.setHeader("access-control-max-age", "600");
+
+    if (req.method === "OPTIONS") {
+      res.writeHead(origin && ALLOWED_ORIGINS.has(origin) ? 204 : 403);
+      res.end();
+      return;
+    }
+
     try {
       if (url.pathname.startsWith("/api/")) {
         await handleApi(req, res, url);
