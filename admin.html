@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex, nofollow">
+  <title>管理后台 · 小杨TK</title>
+  <link rel="icon" href="assets/img/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="assets/css/admin.css">
+</head>
+<body>
+  <div class="adm">
+    <header class="adm-top">
+      <div class="adm-brand">
+        <span class="adm-seal">杨</span>
+        <div>
+          <strong>小杨TK</strong>
+          <small>ADMIN CONSOLE</small>
+        </div>
+      </div>
+
+      <div class="adm-actions">
+        <span class="conn" data-conn>
+          <i></i>
+          <span data-conn-text>未连接 GitHub</span>
+        </span>
+        <button type="button" class="btn ghost" data-open-auth>连接</button>
+        <a class="btn ghost" href="./" target="_blank" rel="noopener">查看站点</a>
+        <button type="button" class="btn primary" data-save>保存并发布</button>
+      </div>
+    </header>
+
+    <nav class="adm-tabs" aria-label="后台导航">
+      <button type="button" class="is-active" data-tab="products">
+        商品管理
+        <em data-count>0</em>
+      </button>
+      <button type="button" data-tab="settings">店铺设置</button>
+    </nav>
+
+    <div class="adm-banner" data-draft-banner hidden>
+      <span>检测到未发布的本地草稿（<b data-draft-time>—</b>）</span>
+      <span class="banner-act">
+        <button type="button" class="btn small" data-draft-restore>恢复草稿</button>
+        <button type="button" class="btn small ghost" data-draft-drop>丢弃</button>
+      </span>
+    </div>
+
+    <section class="adm-view" data-view="products">
+      <div class="adm-card">
+        <div class="adm-toolbar">
+          <label class="search">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="m15 15 5 5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+            <input type="search" placeholder="搜索商品名称 / 品牌" data-search>
+          </label>
+          <select class="select" data-filter aria-label="按分类筛选"></select>
+          <span class="grow"></span>
+          <button type="button" class="btn primary" data-new>+ 新增商品</button>
+        </div>
+
+        <div class="adm-table">
+          <div class="adm-thead">
+            <span>商品</span>
+            <span>分类</span>
+            <span>价格</span>
+            <span>库存</span>
+            <span class="tar">操作</span>
+          </div>
+          <div data-rows></div>
+          <div class="adm-empty" data-empty>
+            <b>还没有商品</b>
+            <span>点右上角「新增商品」开始录入，保存后立即上线。</span>
+          </div>
+        </div>
+
+        <p class="adm-foot">
+          共 <b data-total>0</b> 款商品
+          <span class="dot">·</span>
+          数据文件 <code>assets/js/data.js</code>
+          <span class="dot">·</span>
+          <a href="#" data-export>导出 JSON</a>
+        </p>
+      </div>
+    </section>
+
+    <section class="adm-view" data-view="settings" hidden>
+      <div class="adm-card">
+        <h2 class="adm-h2">店铺信息</h2>
+        <div class="form-grid">
+          <label class="field">
+            <span>数据更新日期</span>
+            <input type="date" data-set="updated">
+          </label>
+          <label class="field">
+            <span>客服 QQ</span>
+            <input type="text" inputmode="numeric" data-set="qq" placeholder="3435705521">
+          </label>
+          <label class="field">
+            <span>在线时间</span>
+            <input type="text" data-set="hours" placeholder="10:00 – 24:00">
+          </label>
+        </div>
+        <p class="adm-hint">分类是固定结构（GPT / Claude / Grok），如需增删分类告诉我改代码。</p>
+      </div>
+    </section>
+
+    <footer class="adm-bottom">
+      <span>提交会直接写入 <code>main</code> 分支，GitHub Pages 自动重建。</span>
+      <span data-build>—</span>
+    </footer>
+  </div>
+
+  <div class="adm-scrim" data-scrim hidden></div>
+
+  <div class="adm-modal" data-auth hidden>
+    <div class="adm-modal-box" role="dialog" aria-modal="true" aria-label="连接 GitHub">
+      <h3>连接 GitHub</h3>
+      <p class="adm-hint">
+        粘贴一个 Fine-grained token，仓库选 <code>y3435705521-ops/xiaoyangtk</code>，
+        权限只需 <code>Contents: Read and write</code>。令牌只保存在本机浏览器，不会写进仓库。
+      </p>
+      <label class="field">
+        <span>Personal access token</span>
+        <input type="password" data-token placeholder="github_pat_..." autocomplete="off" spellcheck="false">
+      </label>
+      <label class="check">
+        <input type="checkbox" data-remember checked>
+        <span>在这台电脑上记住（localStorage）</span>
+      </label>
+      <p class="adm-err" data-auth-err hidden></p>
+      <div class="adm-modal-act">
+        <button type="button" class="btn ghost" data-auth-cancel>取消</button>
+        <button type="button" class="btn primary" data-auth-ok>连接</button>
+      </div>
+    </div>
+  </div>
+
+  <aside class="adm-drawer" data-editor hidden aria-label="商品编辑">
+    <div class="drawer-head">
+      <div>
+        <p class="kicker">PRODUCT</p>
+        <h3 data-editor-title>新增商品</h3>
+      </div>
+      <button type="button" class="icon-btn" data-editor-close aria-label="关闭">✕</button>
+    </div>
+
+    <div class="drawer-body">
+      <div class="form-grid">
+        <label class="field span2">
+          <span>商品名称 *</span>
+          <input type="text" data-f="name" placeholder="GPT Plus 月卡">
+        </label>
+        <label class="field span2">
+          <span>副标题</span>
+          <input type="text" data-f="sub" placeholder="官方直充 · 30 天订阅质保">
+        </label>
+        <label class="field">
+          <span>分类</span>
+          <select data-f="cat"></select>
+        </label>
+        <label class="field">
+          <span>角标文案</span>
+          <input type="text" data-f="mark" placeholder="PLUS / 5X / MAX">
+        </label>
+        <label class="field">
+          <span>品牌</span>
+          <input type="text" data-f="brand" placeholder="OPENAI">
+        </label>
+        <label class="field">
+          <span>品牌副标</span>
+          <input type="text" data-f="brandSub" placeholder="GPT">
+        </label>
+        <label class="field span2">
+          <span>封面图片路径</span>
+          <input type="text" data-f="cover" placeholder="assets/img/products/51.png">
+        </label>
+        <div class="field span2 cover-preview">
+          <img data-cover-preview alt="" hidden>
+          <span data-cover-empty>暂无封面，会显示品牌字标占位</span>
+        </div>
+      </div>
+
+      <h4 class="adm-h4">价格与库存</h4>
+      <div class="form-grid">
+        <label class="field">
+          <span>展示价（元）*</span>
+          <input type="number" step="0.01" min="0" data-f="price">
+        </label>
+        <label class="field">
+          <span>库存状态</span>
+          <select data-f="stockLevel">
+            <option value="high">充足</option>
+            <option value="mid">有限</option>
+            <option value="low">所剩无几</option>
+            <option value="out">已售罄</option>
+          </select>
+        </label>
+        <label class="field">
+          <span>库存文案</span>
+          <input type="text" data-f="stockText" placeholder="库存充足">
+        </label>
+        <label class="field">
+          <span>已售数量</span>
+          <input type="number" min="0" data-f="sold">
+        </label>
+        <label class="field span2">
+          <span>标签（用逗号分隔）</span>
+          <input type="text" data-f="tags" placeholder="热卖, 官方直充">
+        </label>
+      </div>
+
+      <h4 class="adm-h4">
+        规格 / 档位
+        <button type="button" class="btn small" data-add-sku>+ 添加规格</button>
+      </h4>
+      <div class="sku-list" data-skus></div>
+
+      <h4 class="adm-h4">商品亮点（每行一条）</h4>
+      <textarea class="area" rows="4" data-f="highlights" placeholder="下单自动发送 CDK 卡密与激活地址…"></textarea>
+
+      <h4 class="adm-h4">注意事项（每行一条）</h4>
+      <textarea class="area" rows="4" data-f="notes" placeholder="账号封禁、平台风控不在售后范围。"></textarea>
+    </div>
+
+    <div class="drawer-foot">
+      <button type="button" class="btn ghost" data-editor-close>取消</button>
+      <button type="button" class="btn primary" data-editor-ok>确定</button>
+    </div>
+  </aside>
+
+  <div class="adm-toast" data-toast hidden></div>
+
+  <script src="assets/js/admin.js"></script>
+</body>
+</html>
