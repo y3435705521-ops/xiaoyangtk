@@ -357,6 +357,30 @@
       return api("/api/backup");
     },
 
+    /** 顾客下单：写入本机订单文件（服务未运行时静默跳过） */
+    async pushOrder(order) {
+      if ((await detectMode()) !== "remote") return false;
+      try {
+        await api("/api/orders", { method: "POST", body: order });
+        return true;
+      } catch (e) {
+        return false;
+      }
+    },
+
+    /** 后台读取订单 */
+    async listOrders() {
+      if ((await detectMode()) !== "remote") return [];
+      const data = await api("/api/orders");
+      return data.orders || [];
+    },
+
+    async setOrderStatus(no, status) {
+      if ((await detectMode()) !== "remote") return false;
+      await api(`/api/orders/${encodeURIComponent(no)}`, { method: "PATCH", body: { status } });
+      return true;
+    },
+
     /** 设置或清除自己的头像（dataURL，传空字符串表示清除） */
     async setAvatar(dataUrl) {
       const value = String(dataUrl || "");

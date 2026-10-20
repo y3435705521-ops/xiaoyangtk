@@ -745,6 +745,11 @@
       /* ignore */
     }
 
+    // 同步给本机订单文件，店主后台才能看到（服务未运行时静默跳过）
+    if (window.Auth && Auth.pushOrder) {
+      Auth.pushOrder(state.lastOrder).catch(() => {});
+    }
+
     els.orderNo.textContent = orderNo;
     els.orderTotal.textContent = `合计 ¥${money(total)} · ${cartCount()} 件`;
     els.cartDrawer.classList.add("has-order");

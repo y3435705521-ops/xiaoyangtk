@@ -73,6 +73,9 @@
     catCancel: $("[data-cat-cancel]"),
     catRows: $("[data-cat-rows]"),
     catsEmpty: $("[data-cats-empty]"),
+    orderRows: $("[data-order-rows]"),
+    ordersEmpty: $("[data-orders-empty]"),
+    dashHint: $("[data-dash-hint]"),
     app: $(".adm"),
     gate: $("[data-gate]"),
     gateForm: $("[data-gate-form]"),
@@ -422,6 +425,97 @@
     renderSettings();
     renderUsers();
     renderCats();
+    renderDash();
+  }
+
+  const ORDER_STATUS = {
+    pending: "待付款",
+    paid: "待发货",
+    shipped: "已发货",
+    done: "已完成",
+    cancelled: "已取消"
+  };
+
+  const ORDER_NEXT = {
+    pending: ["paid", "标记已付款"],
+    paid: ["shipped", "标记已发货"],
+    shipped: ["done", "标记完成"]
+  };
+
+  function dayKey(value) {
+    const date = value instanceof Date ? value : new Date(value);
+    if (Number.isNaN(date.getTime())) return "";
+    return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
+  }
+
+  async function renderDash() {
+    if (!els.orderRows) return;
+
+    let orders = [];
+    let members = [];
+    let remote = false;
+    try {
+      const info = await Auth.info();
+      remote = !!(info && info.accountsFile);
+      orders = await Auth.listOrders();
+      members = await Auth.list();
+    } catch (e) {
+      remote = false;
+    }
+
+    const isPaid = (order) => order.status === "paid" || order.status === "shipped" || order.status === "done";
+    const sum = (list) => list.reduce((total, order) => total + (Number(order.total) || 0), 0);
+    const active = orders.filter((order) => order.status !== "cancelled");
+    const today = dayKey(new Date());
+    const todays = active.filter((order) => dayKey(order.createdAt) === today);
+    const paidOrders = active.filter(isPaid);
+    const totalRevenue = sum(paidOrders);
+
+    const products = (state.shop && state.shop.products) || [];
+    const sellable = products.filter((product) => {
+      const prices = (product.skus || []).map((sku) => Number(sku.price)).filter((n) => n > 0);
+      const price = prices.length ? Math.min(...prices) : Number(product.price) || 0;
+      return price > 0;
+    });
+    const cats = ((state.shop && state.shop.categories) || []).filter((cat) => cat.id !== "all");
+
+    const stats = {
+      todayRevenue: `¥${money(sum(todays.filter(isPaid)))}`,
+      todayOrders: String(todays.length),
+      pendingShip: String(active.filter((order) => order.status === "paid").length),
+      totalRevenue: `¥${money(totalRevenue)}`,
+      totalOrders: String(active.length),
+      avgOrder: `¥${money(paidOrders.length ? totalRevenue / paidOrders.length : 0)}`,
+      pendingPay: String(active.filter((order) => order.status === "pending").length),
+      members: String(members.length),
+      products: String(sellable.length)
+    };
+
+    Object.entries(stats).forEach(([key, value]) => {
+      const el = $(`[data-stat='${key}']`);
+      if (el) el.textContent = value;
+    });
+
+    const sub = $("[data-stat='productSub']");
+    if (sub) sub.textContent = `分类 ${cats.length} 类`;
+    if (els.dashHint) els.dashHint.hidden = remote;
+
+    els.orderRows.innerHTML = orders.slice(0, 12).map((order) => {
+      const next = ORDER_NEXT[order.status];
+      return `
+        <div class="orow">
+          <div class="orow-no">${esc(order.no)}</div>
+          <div class="orow-name">${esc(order.name)} · ${esc(order.contact)}</div>
+          <div class="orow-total">¥${money(order.total)}</div>
+          <div class="orow-time">${esc(formatTime(order.createdAt))}</div>
+          <div class="orow-act">
+            <span class="ostatus ${esc(order.status)}">${esc(ORDER_STATUS[order.status] || order.status)}</span>
+            ${next ? `<button type="button" class="text-act" data-order-next="${esc(order.no)}" data-order-status="${next[0]}">${next[1]}</button>` : ""}
+          </div>
+        </div>`;
+    }).join("");
+
+    els.ordersEmpty.hidden = orders.length > 0;
   }
 
   function renderCats() {
@@ -1111,6 +1205,23 @@
     $("[data-refresh-users]").addEventListener("click", async () => {
       await renderUsers();
       toast("会员列表已刷新");
+    });
+
+    $("[data-refresh-orders]").addEventListener("click", async () => {
+      await renderDash();
+      toast("订单已刷新");
+    });
+
+    els.orderRows.addEventListener("click", async (event) => {
+      const next = event.target.closest("[data-order-next]");
+      if (!next) return;
+      try {
+        await Auth.setOrderStatus(next.dataset.orderNext, next.dataset.orderStatus);
+        await renderDash();
+        toast("订单状态已更新");
+      } catch (err) {
+        toast(err.message || "更新失败", true);
+      }
     });
 
     $("[data-backup-users]").addEventListener("click", async () => {

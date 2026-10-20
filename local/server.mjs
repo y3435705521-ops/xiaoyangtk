@@ -16,6 +16,7 @@ const SITE_ROOT = path.resolve(__dirname, "..");
 const DATA_DIR = process.env.XIAOYANGTK_DATA_DIR || "C:\\Users\\Y\\Documents\\Codex\\xiaoyangtk-data";
 const ACCOUNTS_FILE = path.join(DATA_DIR, "accounts.json");
 const SESSIONS_FILE = path.join(DATA_DIR, "sessions.json");
+const ORDERS_FILE = path.join(DATA_DIR, "orders.json");
 const PORT = Number(process.env.XIAOYANGTK_PORT || 8787);
 
 /* 允许公网站点直接调用本机服务（仅这几个来源） */
@@ -89,6 +90,9 @@ if (!db.users.some((user) => user.id === OWNER_ID)) {
 
 let sessions = readJson(SESSIONS_FILE, {});
 if (!sessions || typeof sessions !== "object") sessions = {};
+
+let orderDb = readJson(ORDERS_FILE, { version: 1, orders: [] });
+if (!orderDb || !Array.isArray(orderDb.orders)) orderDb = { version: 1, orders: [] };
 
 /* 启动时清掉过期会话，避免 sessions.json 无限增长 */
 function pruneSessions() {
@@ -389,6 +393,68 @@ async function handleApi(req, res, url) {
     sendJson(res, 200, {
       session: { ...sessionOf(found.user, 0), exp: sessions[found.token].exp }
     });
+    return true;
+  }
+
+  /* 订单：顾客下单写入本机文件，店主在后台查看 */
+  if (route === "/api/orders" && method === "POST") {
+    const body = await readBody(req);
+    const no = String(body.no || "").trim();
+    const name = String(body.name || "").trim();
+    const contact = String(body.contact || "").trim();
+    const total = Number(body.total);
+
+    if (!no || !name || !contact || !Number.isFinite(total) || total < 0) {
+      sendJson(res, 400, { error: "订单信息不完整" });
+      return true;
+    }
+    if (orderDb.orders.some((order) => order.no === no)) {
+      sendJson(res, 200, { ok: true, duplicate: true });
+      return true;
+    }
+
+    orderDb.orders.unshift({
+      no,
+      name,
+      contact,
+      note: String(body.note || "").slice(0, 500),
+      total: Math.round(total * 100) / 100,
+      items: Array.isArray(body.items) ? body.items.slice(0, 20) : [],
+      status: "pending",
+      createdAt: new Date().toISOString()
+    });
+    writeJson(ORDERS_FILE, orderDb);
+    sendJson(res, 200, { ok: true });
+    return true;
+  }
+
+  if (route === "/api/orders" && method === "GET") {
+    const found = authUser(req);
+    if (!found || found.user.id !== OWNER_ID) {
+      sendJson(res, 403, { error: "该账号没有后台权限" });
+      return true;
+    }
+    sendJson(res, 200, { orders: orderDb.orders });
+    return true;
+  }
+
+  const orderPatch = route.match(/^\/api\/orders\/([^/]+)$/);
+  if (orderPatch && method === "PATCH") {
+    const found = authUser(req);
+    if (!found || found.user.id !== OWNER_ID) {
+      sendJson(res, 403, { error: "该账号没有后台权限" });
+      return true;
+    }
+    const order = orderDb.orders.find((item) => item.no === decodeURIComponent(orderPatch[1]));
+    if (!order) {
+      sendJson(res, 404, { error: "订单不存在" });
+      return true;
+    }
+    const body = await readBody(req);
+    const allowed = ["pending", "paid", "shipped", "done", "cancelled"];
+    order.status = allowed.includes(body.status) ? body.status : order.status;
+    writeJson(ORDERS_FILE, orderDb);
+    sendJson(res, 200, { ok: true });
     return true;
   }
 
