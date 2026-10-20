@@ -939,11 +939,12 @@
 
     els.exportBtn.addEventListener("click", (event) => {
       event.preventDefault();
-      const blob = new Blob([serializeShop(state.shop)], { type: "text/javascript;charset=utf-8" });
+      // 导出为 .json：浏览器会拦截 .js 下载并卡在“未确认”状态
+      const blob = new Blob([JSON.stringify(state.shop, null, 2)], { type: "application/json" });
       const url = URL.createObjectURL(blob);
       const link = document.createElement("a");
       link.href = url;
-      link.download = "data.js";
+      link.download = `shop-${today()}.json`;
       document.body.appendChild(link);
       link.click();
       link.remove();
