@@ -1034,11 +1034,11 @@
           avatarEl.style.background = avatarColor(session.username);
         }
         avatarEl.hidden = false;
-        if (iconEl) iconEl.hidden = true;
+        if (iconEl) iconEl.setAttribute("hidden", "");
       } else {
         avatarEl.hidden = true;
         avatarEl.textContent = "";
-        if (iconEl) iconEl.hidden = false;
+        if (iconEl) iconEl.removeAttribute("hidden");
       }
     }
     const displayName = session ? String(session.nickname || session.username || "我的账号") : "登录";
