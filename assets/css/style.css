@@ -1,5 +1,5 @@
 /* ==========================================================================
-   龙娘小铺 — AI membership storefront
+   小杨TK — membership storefront
    Editorial paper / ink / vermilion visual system
    ========================================================================== */
 
@@ -651,6 +651,27 @@ button {
 
 .receipt-rows {
   padding: 4px 0;
+}
+
+.receipt-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 5px;
+  padding: 26px 10px;
+  text-align: center;
+  color: var(--muted);
+}
+
+.receipt-empty strong {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--ink);
+}
+
+.receipt-empty small {
+  font-size: 10px;
+  letter-spacing: 0.02em;
 }
 
 .receipt-row {
