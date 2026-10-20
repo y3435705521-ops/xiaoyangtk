@@ -351,7 +351,7 @@ function serveStatic(req, res, url) {
   });
 }
 
-http
+const server = http
   .createServer(async (req, res) => {
     const url = new URL(req.url || "/", `http://127.0.0.1:${PORT}`);
     try {
@@ -382,3 +382,13 @@ http
       } catch (e) { /* 打不开浏览器不影响服务 */ }
     }
   });
+
+server.on("error", (err) => {
+  if (err && err.code === "EADDRINUSE") {
+    console.log(`端口 ${PORT} 已被占用，服务可能已在运行。`);
+    console.log(`直接打开：http://127.0.0.1:${PORT}/admin.html`);
+    process.exit(0);
+  }
+  console.error("启动失败：", err);
+  process.exit(1);
+});
