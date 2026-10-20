@@ -15,6 +15,21 @@
   const ROUNDS = 20000;
   const SESSION_TTL = 7 * 24 * 60 * 60 * 1000;
 
+  /* 内置管理员账号
+     由固定盐值 + 密码派生，任何设备打开后台都能登录。
+     注意：这里只有派生值，没有明文密码；但派生值公开，请勿与其他网站共用密码。 */
+  const BUILTIN_ADMIN = {
+    id: "u_builtin_admin",
+    username: "3435705521@qq.com",
+    nickname: "店主",
+    role: "admin",
+    status: "active",
+    salt: "GtP1YZCe4LVCM1RzxapVJg==",
+    hash: "rxJka8uTGXdfX1Q0lu5JzrVSBIVU3l2wP6f/PNLs0x0=",
+    createdAt: "2026-10-20T00:00:00.000Z",
+    builtin: true
+  };
+
   /* --- SHA-256 ---------------------------------------------------------- */
 
   const K = new Int32Array([
@@ -119,13 +134,23 @@
   /* --- 存储层（接后端时替换这里） --------------------------------------- */
 
   function readUsers() {
+    let list;
     try {
       const raw = localStorage.getItem(USERS_KEY);
-      const list = raw ? JSON.parse(raw) : [];
-      return Array.isArray(list) ? list : [];
+      const parsed = raw ? JSON.parse(raw) : [];
+      list = Array.isArray(parsed) ? parsed : [];
     } catch (e) {
-      return [];
+      list = [];
     }
+
+    if (!list.some((user) => user.id === BUILTIN_ADMIN.id)) {
+      list = [BUILTIN_ADMIN, ...list];
+      try {
+        localStorage.setItem(USERS_KEY, JSON.stringify(list));
+      } catch (e) { /* 存储不可用时仅本次生效 */ }
+    }
+
+    return list;
   }
 
   function writeUsers(list) {
@@ -149,13 +174,21 @@
   /* --- 校验 -------------------------------------------------------------- */
 
   const NAME_RE = /^[\w\u4e00-\u9fa5]{2,20}$/;
+  const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
 
   function normalize(name) {
     return String(name || "").trim().toLowerCase();
   }
 
   function checkUsername(username) {
-    if (!NAME_RE.test(username)) {
+    const name = String(username || "").trim();
+    if (name.includes("@")) {
+      if (!EMAIL_RE.test(name) || name.length > 60) {
+        throw new Error("邮箱格式不正确");
+      }
+      return;
+    }
+    if (!NAME_RE.test(name)) {
       throw new Error("账号需为 2–20 位中文、字母、数字或下划线");
     }
   }
@@ -301,6 +334,11 @@
     /** 仅供自查：SHA-256 十六进制摘要 */
     _digest(text) {
       return toHex(sha256(utf8(text)));
+    },
+
+    /** 仅供生成内置账号凭据使用 */
+    _derive(password, saltB64) {
+      return derive(String(password), fromB64(saltB64));
     }
   };
 

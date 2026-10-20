@@ -893,7 +893,7 @@
     els.gateSubmit.textContent = gateInit ? "创建并进入" : "进入后台";
     els.gateHint.textContent = gateInit
       ? "账号保存在本机浏览器，请牢记密码，后台不提供找回。"
-      : "管理员账号保存在本机浏览器，换设备需要重新创建。";
+      : "使用店主管理员账号登录，任何设备都可以进入。";
     els.gateForm.reset();
     els.gateErr.hidden = true;
     $("[name='username']", els.gateForm).focus();
