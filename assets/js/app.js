@@ -828,7 +828,7 @@
     if (event.target.closest("[data-send-order]")) {
       copyOrder().then(() => {
         window.open(
-          "https://wpa.qq.com/msgrd?v=3&uin=3435705521&site=qq&menu=yes",
+          "https://qm.qq.com/q/XFeh6tkC0U",
           "_blank",
           "noopener"
         );
